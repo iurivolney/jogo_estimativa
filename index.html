@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Estimativa Chooora Paixão</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f9;
+        margin: 0;
+        /* REDUÇÃO DO RODAPÉ (1): Reduz o padding inferior da página */
+        padding: 10px; 
+        color: #333;
+    }
+    
+    .table-container {
+        /* ESSENCIAL: Define a área de rolagem horizontal */
+        overflow: auto; 
+        /* Mantido em 80vh para garantir que haja rolagem se a tabela crescer muito */
+        max-height: 80vh; 
+        margin-bottom: 5px; /* Reduz o espaço abaixo da tabela */
+    }
+    table {
+        width: 100%; 
+        min-width: fit-content;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 8px;
+    }
+    
+    th, td {
+        border: 1px solid #ddd;
+        /* Padding das linhas mantido compacto */
+        padding: 4px; 
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    
+    /* Z-index base para as células que rolam */
+    td {
+        z-index: 1; 
+    }
+
+    input {
+        padding: 4px;
+        text-align: center;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    /* Estilo genérico para botões de estimativa e pontos */
+    .estimate-button, .score-button { 
+        width: 30px; 
+        padding: 2px;
+        height: 35px;
+        box-sizing: border-box;
+        font-weight: bold;
+        border: 1px solid #aaa;
+        background-color: #f8f8f8;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.1s;
+        color: #000; 
+    }
+    .estimate-button:hover, .score-button:hover {
+        background-color: #e0e0e0;
+    }
+
+    /* CORREÇÃO: Removida a interferência do Flexbox */
+    .estimate-cell, .score-cell {
+        position: relative; 
+        padding: 2px; /* Padding ajustado para centralização visual */
+    }
+
+    .player input[type='text'] {
+        width: 98px !important; 
+    }
+    
+    /* ------------------------------------------- */
+    /* FIXAÇÃO VERTICAL E HORIZONTAL */
+    /* ------------------------------------------- */
+    
+    /* Fixação Vertical (Cabeçalho) */
+    th {
+        background: #0d6efd;
+        color: white;
+        font-weight: bold;
+        position: sticky; 
+        top: 0;
+        z-index: 200; 
+    }
+
+    /* Cores de Fundo das Linhas */
+    .estimativa-row td {
+        background-color: #e0f7ff; 
+    }
+    .pontos-row td {
+        background-color: white; 
+    }
+
+    /* Fixação Horizontal: Coluna JOGADOR (1ª TD - td.player) */
+    .player { 
+        width: 110px; 
+        font-weight: bold;
+        position: sticky;
+        left: 0;
+        z-index: 101; 
+    }
+    
+    /* Fixação Horizontal: Coluna TIPO (td.tipo-col) */
+    td.tipo-col {
+        position: sticky;
+        left: 110px; 
+        width: 60px; 
+        font-weight: bold;
+        z-index: 100; 
+    }
+
+    /* Garante a cor correta nas células fixas para cobrir a rolagem */
+    .estimativa-row .player,
+    .estimativa-row .tipo-col {
+        background-color: #e0f7ff !important;
+    }
+    .pontos-row .player,
+    .pontos-row .tipo-col {
+        background-color: white !important; 
+    }
+
+    /* Fixação Interseção (Canto Superior Esquerdo - JOGADOR TH) */
+    .table-container thead th:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 202; /* Maior Z-index: Trava Top/Left */
+        width: 110px; 
+    }
+
+    /* Fixação Interseção (Canto Superior Esquerdo - TIPO TH) */
+    .table-container thead th:nth-child(2) {
+        position: sticky;
+        left: 110px; 
+        background: #0d6efd; 
+        color: white;
+        z-index: 201; /* Alto Z-index: Trava Top/Left */
+    }
+    
+    /* ------------------------------------------- */
+    /* FIM DA FIXAÇÃO */
+    /* ------------------------------------------- */
+
+    /* Estilo para a caixa de seleção de números (Modal) */
+    #selection-overlay, #ranking-overlay, #info-overlay {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); 
+        display: none; 
+        justify-content: center;
+        align-items: center;
+        z-index: 9998; 
+    }
+
+    #selection-modal, #ranking-output, #info-output {
+        padding: 15px;
+        border: 2px solid #0d6efd;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        width: 90%; 
+        max-width: 350px; 
+        max-height: 80%; 
+        overflow-y: auto;
+        position: relative;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    #selection-modal {
+        max-width: 250px; 
+    }
+    
+    #selection-modal h3, #ranking-output h2, #info-output h2 {
+        color: #0d6efd;
+        text-align: center;
+        margin-top: 0;
+    }
+    
+    #selection-options {
+        display: flex;
+        flex-wrap: wrap; 
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    #selection-options button {
+        width: 50px; 
+        padding: 10px 5px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #f0f0f0;
+        color: #333;
+        cursor: pointer;
+        margin: 0; 
+        box-sizing: border-box;
+    }
+    #selection-options button:hover {
+        background-color: #ddd;
+    }
+    
+    #close-selection-button {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        background: #6c757d; 
+        color: white;
+    }
+    
+    /* Estilo para o modal de ranking */
+    #ranking-overlay {
+        z-index: 9999;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    #ranking-output ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    #ranking-output li {
+        margin: 10px 0;
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        font-size: 1.1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rank-number {
+        font-weight: bold;
+        color: #0d6efd;
+        min-width: 30px;
+        text-align: left;
+    }
+
+    .rank-score {
+        font-weight: bold;
+        color: #333;
+        min-width: 70px;
+        text-align: right;
+    }
+
+    .rank-player {
+        flex-grow: 1;
+        text-align: left;
+        margin: 0 10px;
+    }
+
+    button {
+        /* REDUÇÃO DO RODAPÉ (2): Reduz o espaço acima do botão */
+        margin-top: 5px; 
+        /* REDUÇÃO DO RODAPÉ (3): Reduz a altura interna do botão */
+        padding: 8px 20px; 
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        background: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+
+    #close-button {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        background: #dc3545;
+    }
+
+    /* ------------------------------------------- */
+    /* NOVO: Ícone e Modal de Informação */
+    /* ------------------------------------------- */
+    
+    /* Ícone flutuante de informação no canto inferior direito */
+    #info-icon {
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background-color: #0d6efd;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        z-index: 10000; /* Acima de todos os outros elementos */
+    }
+
+    #info-overlay {
+        z-index: 9999;
+    }
+
+    #info-output {
+        max-width: 300px;
+        text-align: center;
+    }
+
+    #info-output h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    #info-output p {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    #close-info-button {
+        margin-top: 20px;
+        background: #6c757d;
+    }
+
+    /* Contêiner das cartas para organização em linha */
+    #card-display {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 15px;
+    }
+
+    /* Estilo Base da Carta */
+    .card {
+        border: 1px solid #333;
+        border-radius: 5px;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        aspect-ratio: 2 / 3; /* Proporção de carta (aproximada) */
+    }
+
+    /* Naipes usando símbolos Unicode */
+    .suit {
+        font-weight: bold;
+        text-align: center;
+        line-height: 1; /* Centraliza verticalmente o símbolo */
+    }
+
+    /* Cores dos Naipes */
+    .red {
+        color: #dc3545; /* Vermelho */
+    }
+
+    .black {
+        color: #333; /* Preto */
+    }
+
+    /* Tamanhos Decrescentes */
+    #card-diamante { 
+        width: 80px; 
+    }
+    #card-espada { 
+        width: 80px; 
+    }
+    #card-copas { 
+        width: 80px; 
+    }
+    #card-paus { 
+        width: 80px; 
+    }
+
+    /* Ajuste do tamanho da fonte do naipe para cada carta */
+    #card-diamante .suit { font-size: 100px; }
+    #card-espada .suit { font-size: 90px; }
+    #card-copas .suit { font-size: 80px; }
+    #card-paus .suit { font-size: 70px; }
+
+    /* NOVO: Estilo para a sequência de valores */
+    #card-values {
+        margin-top: 15px;
+        font-size: 0.9em;
+        font-weight: bold;
+        color: #333;
+        padding: 0 10px;
+    }
+</style>
+</head>
+<body>
+
+<div class="table-container">
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th class="player fixed-col">Jogador</th>
+                <th class="fixed-col">Tipo</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
+                <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <script>
+                const COLUNAS = 12;
+                const JOGADORES = 6;
+                for (let i = 0; i < JOGADORES; i++) {
+                    // Linha ESTIMATIVA com botões
+                    document.write(`<tr class="estimativa-row"> 
+                        <td rowspan="2" class="player"><input type='text' /></td>
+                        <td class="tipo-col">Estimativa</td> ${Array.from({length: COLUNAS}).map((_, col) => 
+                            `<td class="estimate-cell" data-col="${col + 1}">
+                                <button type="button" class="estimate-button" 
+                                    onclick="openEstimateSelector(this, ${col + 1})"></button>
+                            </td>` 
+                        ).join('')}
+                        <td rowspan="2" class="total">0</td>
+                    </tr>`);
+
+                    // Linha PONTOS com botões
+                    document.write(`<tr class="pontos-row"> 
+                        <td class="tipo-col">Ponto</td> ${Array.from({length: COLUNAS}).map((_, col) =>
+                            `<td class="score-cell" data-col="${col + 1}">
+                                <button type="button" class="score-button" 
+                                    onclick="openPontosSelector(this, ${col + 1})"></button>
+                            </td>`
+                        ).join('')}
+                    </tr>`);
+                }
+            </script>
+        </tbody>
+    </table>
+</div>
+
+<button onclick="mostrarRanking()">Mostrar Ranking</button>
+
+
+<div id="info-icon" onclick="mostrarInfo()">!</div>
+
+<div id="ranking-overlay">
+    <div id="ranking-output">
+        </div>
+</div>
+
+<div id="selection-overlay">
+    <div id="selection-modal">
+        <h3>Selecione o Valor</h3>
+        <div id="selection-options">
+            </div>
+        <button type="button" id="close-selection-button" onclick="closeSelectionModal()">Fechar</button>
+    </div>
+</div>
+
+<div id="info-overlay">
+    <div id="info-output">
+        <h2>ESTIMATIVA - V3</h2>
+        <h3>Desenvolvido por IURI VOLNEY</h3>
+        <h4>iuri.volney@gmail.com</h4>
+        <div id="card-display">
+            <div id="card-diamante" class="card"><span class="suit red">♦</span></div>
+            <div id="card-espada" class="card"><span class="suit black">♠</span></div>
+            <div id="card-copas" class="card"><span class="suit red">♥</span></div>
+            <div id="card-paus" class="card"><span class="suit black">♣</span></div>
+        </div>
+        <div id="card-values">
+            A - K - Q - J - 10 - 9 - 8 - 7 - 6 - 5 - 4 - 3 - 2
+        </div>
+        <button id="close-info-button" onclick="fecharInfo()">Fechar</button>
+    </div>
+</div>
+
+
+<script>
+
+// Função para fechar o modal de seleção
+function closeSelectionModal() {
+    document.getElementById('selection-overlay').style.display = 'none';
+}
+
+// bloqueio de saída
+window.addEventListener('beforeunload', function (e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
+
+/**
+ * Obtém opções de pontos condicionais com base na estimativa.
+ * @param {number} colIndex - O índice da coluna (1 a 12).
+ * @param {number} estimativa - O valor da estimativa (0 a colIndex).
+ * @returns {number[]} Array de opções de pontos.
+ */
+function getConditionalPontosOptions(colIndex, estimativa) {
+    // Se a estimativa não for um número válido (botão vazio, etc.), retorna um array vazio.
+    if (isNaN(estimativa) || estimativa === null) {
+        return []; 
+    }
+    
+    const N = colIndex;
+    let explicitOptions = [];
+    
+    // Se PONTOS == ESTIMATIVA, PONTOS = ESTIMATIVA + 10 (Bônus)
+    // Se PONTOS > ESTIMATIVA, PONTOS = 1 até (N - ESTIMATIVA)
+    // Se PONTOS < ESTIMATIVA, PONTOS = -(ESTIMATIVA) até -1
+
+    if (estimativa === 0) {
+        // Valores positivos de 1 a N
+        for(let i = 1; i <= N; i++) explicitOptions.push(i);
+        // Bônus fixo de 10
+        explicitOptions.push(10);
+    } else if (estimativa >= 1 && estimativa <= N) {
+        // Valores negativos (errou o número)
+        for(let i = -estimativa; i <= -1; i++) explicitOptions.push(i);
+        
+        // Valores positivos (acertou o número, mas errou a estimativa)
+        // Valores de 1 até N-estimativa
+        for(let i = 1; i <= N - estimativa; i++) explicitOptions.push(i);
+
+        // Bônus (acertou a estimativa)
+        explicitOptions.push(estimativa + 10);
+    } 
+    // Garante que só haja números únicos
+    return Array.from(new Set(explicitOptions)).sort((a, b) => a - b);
+}
+
+
+// ATUALIZAÇÃO DE TOTAIS
+function atualizarTotais() {
+    const linhas = document.querySelectorAll('#tabela tbody tr');
+
+    for (let i = 0; i < linhas.length; i += 2) {
+        const pontosButtons = linhas[i+1].querySelectorAll('.score-button'); 
+        let soma = 0;
+        pontosButtons.forEach(button => {
+            // IMPORTANTE: Considerar apenas botões com conteúdo numérico válido
+            const val = parseInt(button.textContent); 
+            if (!isNaN(val)) soma += val; 
+        });
+        const totalCell = linhas[i].querySelector('.total');
+        if (totalCell) totalCell.textContent = soma;
+    }
+}
+
+
+// SELETORES GENÉRICOS
+
+// Função genérica para abrir o seletor de números (AGORA MODAL)
+function openSelector(button, options, title) {
+    const overlay = document.getElementById('selection-overlay');
+    const optionsContainer = document.getElementById('selection-options');
+    const modalTitle = document.querySelector('#selection-modal h3');
+    
+    // Limpa opções antigas
+    optionsContainer.innerHTML = '';
+    
+    // Define o título 
+    modalTitle.textContent = title || 'Selecione o Valor';
+    
+    // Cria os botões de opção e injeta
+    options.forEach(optionValue => {
+        const optionButton = document.createElement('button');
+        optionButton.textContent = optionValue;
+        optionButton.type = 'button';
+        
+        // Atribui a função de seleção, passando o botão original da célula
+        optionButton.onclick = function() {
+            selectValue(button, optionValue);
+            closeSelectionModal(); // Fechar o modal após selecionar
+        };
+        
+        optionsContainer.appendChild(optionButton);
+    });
+
+    // Exibe o modal
+    overlay.style.display = 'flex';
+}
+
+/**
+ * Seleciona o valor e, se for uma ESTIMATIVA, limpa o PONTO correspondente.
+ * @param {HTMLElement} button - O botão que foi clicado.
+ * @param {number|string} value - O valor a ser inserido no botão.
+ */
+function selectValue(button, value) {
+    button.textContent = value;
+    
+    // 1. Identifica se o botão clicado é um botão de estimativa
+    if (button.classList.contains('estimate-button')) {
+        const linhaEstimativa = button.closest('.estimativa-row');
+        const colIndex = button.closest('.estimate-cell').getAttribute('data-col');
+        
+        // Encontra o botão de ponto correspondente na linha seguinte
+        // (A linha de pontos é sempre a próxima)
+        const linhaPontos = linhaEstimativa.nextElementSibling;
+        if (linhaPontos && linhaPontos.classList.contains('pontos-row')) {
+            const pontoCell = linhaPontos.querySelector(`.score-cell[data-col="${colIndex}"]`);
+            if (pontoCell) {
+                const pontoButton = pontoCell.querySelector('.score-button');
+                // Limpa o botão de ponto para forçar o jogador a reabrir
+                pontoButton.textContent = ""; 
+            }
+        }
+    }
+    
+    // 2. ATUALIZA O TOTAL APÓS CADA SELEÇÃO
+    atualizarTotais(); 
+}
+
+// Funções específicas de abertura (chamam a função genérica)
+function openEstimateSelector(button, maxVal) {
+    const options = [];
+    for (let i = 0; i <= maxVal; i++) {
+        options.push(i);
+    }
+    openSelector(button, options, `Estimativa (0 a ${maxVal})`);
+}
+
+/**
+ * Obtém a estimativa da mesma rodada antes de abrir o seletor de pontos.
+ * @param {HTMLElement} button - O botão de ponto clicado.
+ * @param {number} colIndex - O índice da coluna (rodada).
+ */
+function openPontosSelector(button, colIndex) {
+    // Encontra a linha de estimativa correspondente
+    const linhaPontos = button.closest('.pontos-row');
+    // A linha de estimativa é sempre a linha anterior
+    const linhaEstimativa = linhaPontos.previousElementSibling; 
+    
+    let estimativa = null;
+    if (linhaEstimativa && linhaEstimativa.classList.contains('estimativa-row')) {
+        // Encontra o botão de estimativa na mesma coluna
+        const estimateCell = linhaEstimativa.querySelector(`.estimate-cell[data-col="${colIndex}"]`);
+        const estimateButton = estimateCell ? estimateCell.querySelector('.estimate-button') : null;
+        
+        if (estimateButton) {
+            // Tenta obter o valor. Se for string vazia ou não for número, será null.
+            const estVal = parseInt(estimateButton.textContent);
+            estimativa = isNaN(estVal) ? null : estVal;
+        }
+    }
+    
+    // Se nenhuma estimativa foi selecionada, exibe uma mensagem ou não abre o modal
+    if (estimativa === null) {
+        alert("Por favor, selecione primeiro a *ESTIMATIVA* para esta rodada.");
+        return; 
+    }
+    
+    const options = getConditionalPontosOptions(colIndex, estimativa);
+    openSelector(button, options, `Pontos (Rodada ${colIndex}, Est: ${estimativa})`);
+}
+
+
+// MOSTRAR RANKING
+function mostrarRanking() {
+    // Garante que os totais estejam atualizados
+    atualizarTotais(); 
+    
+    const linhas = document.querySelectorAll('#tabela tbody tr');
+    let ranking = [];
+
+    for (let i = 0; i < linhas.length; i += 2) {
+        const nome = linhas[i].querySelector('.player input').value || "-";
+        const total = parseInt(linhas[i].querySelector('.total').textContent) || 0;
+        ranking.push({ nome, total });
+    }
+
+    // Ordena o ranking do maior para o menor total
+    ranking.sort((a, b) => b.total - a.total);
+
+    // Cria o HTML do conteúdo do ranking
+    let rankingContent = '<h2>🏆 Ranking Estimativa 🏆</h2><ul>';
+    ranking.forEach((r, i) => {
+        rankingContent += `<li>
+            <span class="rank-number">${i+1}º</span> 
+            <span class="rank-player">${r.nome}</span> 
+            <span class="rank-score">${r.total} pts</span>
+        </li>`;
+    });
+    
+    // Adiciona o botão de fechar
+    rankingContent += '<button id="close-button" onclick="fecharRanking()">Fechar</button>';
+
+    // Insere o HTML no modal e o exibe
+    document.getElementById('ranking-output').innerHTML = rankingContent;
+    document.getElementById('ranking-overlay').style.display = 'flex';
+}
+
+// Função para fechar o ranking
+function fecharRanking() {
+    document.getElementById('ranking-overlay').style.display = 'none';
+}
+
+// Função para mostrar o modal de Informação
+function mostrarInfo() {
+    document.getElementById('info-overlay').style.display = 'flex';
+}
+
+// Função para fechar o modal de Informação
+function fecharInfo() {
+    document.getElementById('info-overlay').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
