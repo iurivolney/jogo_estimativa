@@ -6,12 +6,39 @@
 <title>Estimativa</title>
 
 <style>
+    /* Variáveis de Cores - Tema Claro (Padrão) */
+    :root {
+        --bg-body: #f4f4f9;
+        --bg-table: white;
+        --bg-header: #0d6efd;
+        --text-main: #333;
+        --border-color: #ddd;
+        --bg-est-row: #e0f7ff;
+        --bg-pts-row: white;
+        --bg-modal: white;
+        --text-ranking-score: #333;
+    }
+
+    /* Variáveis de Cores - Tema Escuro */
+    body.dark-theme {
+        --bg-body: #121212;
+        --bg-table: #1e1e1e;
+        --bg-header: #0a4da3;
+        --text-main: #e0e0e0;
+        --border-color: #444;
+        --bg-est-row: #1a3a4a;
+        --bg-pts-row: #1e1e1e;
+        --bg-modal: #2d2d2d;
+        --text-ranking-score: #fff;
+    }
+
     body {
         font-family: Arial, sans-serif;
-        background: #f4f4f9;
+        background: var(--bg-body);
         margin: 0;
         padding: 10px; 
-        color: #333;
+        color: var(--text-main);
+        transition: background 0.3s, color 0.3s;
     }
     
     .table-container {
@@ -23,13 +50,13 @@
         width: 100%; 
         min-width: fit-content;
         border-collapse: collapse;
-        background: white;
+        background: var(--bg-table);
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         border-radius: 8px;
     }
     
     th, td {
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         padding: 4px; 
         text-align: center;
         white-space: nowrap;
@@ -46,6 +73,8 @@
         border: 1px solid #aaa;
         border-radius: 4px;
         box-sizing: border-box;
+        background: var(--bg-table);
+        color: var(--text-main);
     }
 
     .botao-estimativa { 
@@ -88,7 +117,7 @@
     }
     
     th {
-        background: #0d6efd;
+        background: var(--bg-header);
         color: white;
         font-weight: bold;
         position: sticky; 
@@ -97,10 +126,10 @@
     }
 
     .linha-estimativa td {
-        background-color: #e0f7ff; 
+        background-color: var(--bg-est-row); 
     }
     .linha-pontos td {
-        background-color: white; 
+        background-color: var(--bg-pts-row); 
     }
 
     .jogador { 
@@ -121,11 +150,11 @@
 
     .linha-estimativa .jogador,
     .linha-estimativa .tipo-col {
-        background-color: #e0f7ff !important;
+        background-color: var(--bg-est-row) !important;
     }
     .linha-pontos .jogador,
     .linha-pontos .tipo-col {
-        background-color: white !important; 
+        background-color: var(--bg-pts-row) !important; 
     }
 
     .table-container thead th:nth-child(1) {
@@ -138,7 +167,7 @@
     .table-container thead th:nth-child(2) {
         position: sticky;
         left: 110px; 
-        background: #0d6efd; 
+        background: var(--bg-header); 
         color: white;
         z-index: 201;
     }
@@ -160,7 +189,7 @@
         padding: 15px;
         border: 2px solid #0d6efd;
         border-radius: 10px;
-        background-color: white;
+        background-color: var(--bg-modal);
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         width: 90%; 
         max-width: 350px; 
@@ -168,6 +197,7 @@
         overflow-y: auto;
         position: relative;
         animation: fadeIn 0.3s ease-out;
+        color: var(--text-main);
     }
     
     #selection-modal {
@@ -205,12 +235,12 @@
     display: block;
     width: 100%;
     margin-top: 15px;
-    background: #717d84; /* Cor cinza azulada da imagem */
+    background: #717d84; 
     color: white;
     padding: 12px;
     font-size: 18px;
     border: none;
-    border-radius: 12px; /* Cantos bem arredondados */
+    border-radius: 12px; 
     cursor: pointer;
     font-weight: normal;
 }
@@ -228,7 +258,7 @@
     #ranking-output li {
         margin: 10px 0;
         padding: 8px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
         font-size: 1.1em;
         display: flex;
         justify-content: space-between;
@@ -243,7 +273,7 @@
 
     .rank-score {
         font-weight: bold;
-        color: #333;
+        color: var(--text-ranking-score);
         min-width: 70px;
         text-align: right;
     }
@@ -282,22 +312,38 @@
         cursor: pointer;
     }
 
-    #info-icon {
+    /* Ícones no canto inferior direito */
+    #info-icon, #theme-icon {
         position: fixed;
         bottom: 15px;
-        right: 15px;
         width: 40px;
         height: 40px;
-        background-color: #0d6efd;
         color: white;
         border-radius: 50%;
         text-align: center;
         line-height: 40px;
-        font-size: 24px;
+        font-size: 20px;
         font-weight: bold;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         z-index: 10000;
+        transition: transform 0.2s;
+    }
+
+    #info-icon {
+        right: 15px;
+        background-color: #0d6efd;
+        font-size: 24px;
+    }
+
+    #theme-icon {
+        right: 65px; /* Posicionado à esquerda do info-icon */
+        background-color: #333;
+    }
+    
+    body.dark-theme #theme-icon {
+        background-color: #f1c40f;
+        color: #333;
     }
 
     #info-output {
@@ -342,7 +388,7 @@
         margin-top: 15px;
         font-size: 0.9em;
         font-weight: bold;
-        color: #333;
+        color: var(--text-main);
     }
 </style>
 </head>
@@ -367,6 +413,7 @@
 <button class="main-btn" onclick="mostrarRanking()">Mostrar Ranking</button>
 <button class="main-btn btn-reset" onclick="resetarJogo()">Recomeçar Jogo</button>
 
+<div id="theme-icon" onclick="toggleTheme()" title="Alternar Tema">🌓</div>
 <div id="info-icon" onclick="mostrarInfo()">!</div>
 
 <div id="ranking-overlay">
@@ -403,6 +450,20 @@
 const COLUNAS = 12;
 const JOGADORES = 6;
 const STORAGE_KEY = 'estimativa_save_v3';
+const THEME_KEY = 'estimativa_theme';
+
+// Alternância de Tema
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+}
 
 // Inicialização da Tabela
 function renderizarTabela() {
@@ -574,6 +635,7 @@ function fecharInfo() { document.getElementById('info-overlay').style.display = 
 window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
 
 // Start
+loadTheme();
 renderizarTabela();
 loadData();
 
