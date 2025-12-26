@@ -10,17 +10,14 @@
         font-family: Arial, sans-serif;
         background: #f4f4f9;
         margin: 0;
-        /* REDUÇÃO DO RODAPÉ (1): Reduz o padding inferior da página */
         padding: 10px; 
         color: #333;
     }
     
     .table-container {
-        /* ESSENCIAL: Define a área de rolagem horizontal */
         overflow: auto; 
-        /* Mantido em 80vh para garantir que haja rolagem se a tabela crescer muito */
         max-height: 80vh; 
-        margin-bottom: 5px; /* Reduz o espaço abaixo da tabela */
+        margin-bottom: 5px;
     }
     table {
         width: 100%; 
@@ -33,14 +30,12 @@
     
     th, td {
         border: 1px solid #ddd;
-        /* Padding das linhas mantido compacto */
         padding: 4px; 
         text-align: center;
         white-space: nowrap;
         vertical-align: middle;
     }
     
-    /* Z-index base para as células que rolam */
     td {
         z-index: 1; 
     }
@@ -53,39 +48,45 @@
         box-sizing: border-box;
     }
 
-    /* Estilo genérico para botões de estimativa e pontos */
-    .estimate-button, .score-button { 
+    .botao-estimativa { 
         width: 30px; 
         padding: 2px;
         height: 35px;
         box-sizing: border-box;
         font-weight: bold;
         border: 1px solid #aaa;
-        background-color: #f8f8f8;
+        background-color: #deeafc;
         border-radius: 4px;
         cursor: pointer;
         transition: background-color 0.1s;
         color: #000; 
     }
-    .estimate-button:hover, .score-button:hover {
+	.botao-pontos { 
+        width: 30px; 
+        padding: 2px;
+        height: 35px;
+        box-sizing: border-box;
+        font-weight: bold;
+        border: 1px solid #aaa;
+        background-color: #faf1ed;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.1s;
+        color: #000; 
+    }
+    .botao-estimativa:hover, .botao-pontos:hover {
         background-color: #e0e0e0;
     }
 
-    /* CORREÇÃO: Removida a interferência do Flexbox */
-    .estimate-cell, .score-cell {
+    .celula-estimativa, .celula-pontos {
         position: relative; 
-        padding: 2px; /* Padding ajustado para centralização visual */
+        padding: 2px;
     }
 
-    .player input[type='text'] {
+    .jogador input[type='text'] {
         width: 98px !important; 
     }
     
-    /* ------------------------------------------- */
-    /* FIXAÇÃO VERTICAL E HORIZONTAL */
-    /* ------------------------------------------- */
-    
-    /* Fixação Vertical (Cabeçalho) */
     th {
         background: #0d6efd;
         color: white;
@@ -95,16 +96,14 @@
         z-index: 200; 
     }
 
-    /* Cores de Fundo das Linhas */
-    .estimativa-row td {
+    .linha-estimativa td {
         background-color: #e0f7ff; 
     }
-    .pontos-row td {
+    .linha-pontos td {
         background-color: white; 
     }
 
-    /* Fixação Horizontal: Coluna JOGADOR (1ª TD - td.player) */
-    .player { 
+    .jogador { 
         width: 110px; 
         font-weight: bold;
         position: sticky;
@@ -112,7 +111,6 @@
         z-index: 101; 
     }
     
-    /* Fixação Horizontal: Coluna TIPO (td.tipo-col) */
     td.tipo-col {
         position: sticky;
         left: 110px; 
@@ -121,38 +119,30 @@
         z-index: 100; 
     }
 
-    /* Garante a cor correta nas células fixas para cobrir a rolagem */
-    .estimativa-row .player,
-    .estimativa-row .tipo-col {
+    .linha-estimativa .jogador,
+    .linha-estimativa .tipo-col {
         background-color: #e0f7ff !important;
     }
-    .pontos-row .player,
-    .pontos-row .tipo-col {
+    .linha-pontos .jogador,
+    .linha-pontos .tipo-col {
         background-color: white !important; 
     }
 
-    /* Fixação Interseção (Canto Superior Esquerdo - JOGADOR TH) */
     .table-container thead th:nth-child(1) {
         position: sticky;
         left: 0;
-        z-index: 202; /* Maior Z-index: Trava Top/Left */
+        z-index: 202;
         width: 110px; 
     }
 
-    /* Fixação Interseção (Canto Superior Esquerdo - TIPO TH) */
     .table-container thead th:nth-child(2) {
         position: sticky;
         left: 110px; 
         background: #0d6efd; 
         color: white;
-        z-index: 201; /* Alto Z-index: Trava Top/Left */
+        z-index: 201;
     }
     
-    /* ------------------------------------------- */
-    /* FIM DA FIXAÇÃO */
-    /* ------------------------------------------- */
-
-    /* Estilo para a caixa de seleção de números (Modal) */
     #selection-overlay, #ranking-overlay, #info-overlay {
         position: fixed; 
         top: 0;
@@ -210,22 +200,20 @@
         margin: 0; 
         box-sizing: border-box;
     }
-    #selection-options button:hover {
-        background-color: #ddd;
-    }
     
-    #close-selection-button {
-        display: block;
-        width: 100%;
-        margin-top: 15px;
-        background: #6c757d; 
-        color: white;
-    }
-    
-    /* Estilo para o modal de ranking */
-    #ranking-overlay {
-        z-index: 9999;
-    }
+  #close-selection-button {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    background: #717d84; /* Cor cinza azulada da imagem */
+    color: white;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px; /* Cantos bem arredondados */
+    cursor: pointer;
+    font-weight: normal;
+}
 
     @keyframes fadeIn {
         from { opacity: 0; transform: scale(0.9); }
@@ -251,7 +239,6 @@
         font-weight: bold;
         color: #0d6efd;
         min-width: 30px;
-        text-align: left;
     }
 
     .rank-score {
@@ -261,16 +248,14 @@
         text-align: right;
     }
 
-    .rank-player {
+    .rank-jogador {
         flex-grow: 1;
         text-align: left;
         margin: 0 10px;
     }
 
-    button {
-        /* REDUÇÃO DO RODAPÉ (2): Reduz o espaço acima do botão */
+    .main-btn {
         margin-top: 5px; 
-        /* REDUÇÃO DO RODAPÉ (3): Reduz a altura interna do botão */
         padding: 8px 20px; 
         font-size: 16px;
         border: none;
@@ -280,18 +265,23 @@
         cursor: pointer;
     }
 
+    .btn-reset {
+        background: #dc3545;
+        margin-left: 10px;
+    }
+
     #close-button {
         display: block;
         width: 100%;
         margin-top: 15px;
         background: #dc3545;
+        padding: 10px;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
     }
 
-    /* ------------------------------------------- */
-    /* NOVO: Ícone e Modal de Informação */
-    /* ------------------------------------------- */
-    
-    /* Ícone flutuante de informação no canto inferior direito */
     #info-icon {
         position: fixed;
         bottom: 15px;
@@ -307,11 +297,7 @@
         font-weight: bold;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         cursor: pointer;
-        z-index: 10000; /* Acima de todos os outros elementos */
-    }
-
-    #info-overlay {
-        z-index: 9999;
+        z-index: 10000;
     }
 
     #info-output {
@@ -319,24 +305,6 @@
         text-align: center;
     }
 
-    #info-output h2 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-    }
-    
-    #info-output p {
-        font-size: 1.1em;
-        font-weight: bold;
-        margin-top: 0;
-        margin-bottom: 15px;
-    }
-
-    #close-info-button {
-        margin-top: 20px;
-        background: #6c757d;
-    }
-
-    /* Contêiner das cartas para organização em linha */
     #card-display {
         display: flex;
         justify-content: center;
@@ -344,7 +312,6 @@
         margin-top: 15px;
     }
 
-    /* Estilo Base da Carta */
     .card {
         border: 1px solid #333;
         border-radius: 5px;
@@ -353,52 +320,29 @@
         justify-content: center;
         align-items: center;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-        aspect-ratio: 2 / 3; /* Proporção de carta (aproximada) */
+        aspect-ratio: 2 / 3;
     }
 
-    /* Naipes usando símbolos Unicode */
     .suit {
         font-weight: bold;
         text-align: center;
-        line-height: 1; /* Centraliza verticalmente o símbolo */
+        line-height: 1;
     }
 
-    /* Cores dos Naipes */
-    .red {
-        color: #dc3545; /* Vermelho */
-    }
+    .red { color: #dc3545; }
+    .black { color: #333; }
 
-    .black {
-        color: #333; /* Preto */
-    }
-
-    /* Tamanhos Decrescentes */
-    #card-diamante { 
-        width: 80px; 
-    }
-    #card-espada { 
-        width: 80px; 
-    }
-    #card-copas { 
-        width: 80px; 
-    }
-    #card-paus { 
-        width: 80px; 
-    }
-
-    /* Ajuste do tamanho da fonte do naipe para cada carta */
+    #card-diamante, #card-espada, #card-copas, #card-paus { width: 80px; }
     #card-diamante .suit { font-size: 100px; }
     #card-espada .suit { font-size: 90px; }
     #card-copas .suit { font-size: 80px; }
     #card-paus .suit { font-size: 70px; }
 
-    /* NOVO: Estilo para a sequência de valores */
     #card-values {
         margin-top: 15px;
         font-size: 0.9em;
         font-weight: bold;
         color: #333;
-        padding: 0 10px;
     }
 </style>
 </head>
@@ -408,67 +352,38 @@
     <table id="tabela">
         <thead>
             <tr>
-                <th class="player fixed-col">Jogador</th>
+                <th class="jogador fixed-col">Jogador</th>
                 <th class="fixed-col">Tipo</th>
                 <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
                 <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
                 <th>TOTAL</th>
             </tr>
         </thead>
-        <tbody>
-            <script>
-                const COLUNAS = 12;
-                const JOGADORES = 6;
-                for (let i = 0; i < JOGADORES; i++) {
-                    // Linha ESTIMATIVA com botões
-                    document.write(`<tr class="estimativa-row"> 
-                        <td rowspan="2" class="player"><input type='text' /></td>
-                        <td class="tipo-col">Estimativa</td> ${Array.from({length: COLUNAS}).map((_, col) => 
-                            `<td class="estimate-cell" data-col="${col + 1}">
-                                <button type="button" class="estimate-button" 
-                                    onclick="openEstimateSelector(this, ${col + 1})"></button>
-                            </td>` 
-                        ).join('')}
-                        <td rowspan="2" class="total">0</td>
-                    </tr>`);
-
-                    // Linha PONTOS com botões
-                    document.write(`<tr class="pontos-row"> 
-                        <td class="tipo-col">Ponto</td> ${Array.from({length: COLUNAS}).map((_, col) =>
-                            `<td class="score-cell" data-col="${col + 1}">
-                                <button type="button" class="score-button" 
-                                    onclick="openPontosSelector(this, ${col + 1})"></button>
-                            </td>`
-                        ).join('')}
-                    </tr>`);
-                }
-            </script>
-        </tbody>
+        <tbody id="tabela-corpo">
+            </tbody>
     </table>
 </div>
 
-<button onclick="mostrarRanking()">Mostrar Ranking</button>
-
+<button class="main-btn" onclick="mostrarRanking()">Mostrar Ranking</button>
+<button class="main-btn btn-reset" onclick="resetarJogo()">Recomeçar Jogo</button>
 
 <div id="info-icon" onclick="mostrarInfo()">!</div>
 
 <div id="ranking-overlay">
-    <div id="ranking-output">
-        </div>
+    <div id="ranking-output"></div>
 </div>
 
 <div id="selection-overlay">
     <div id="selection-modal">
         <h3>Selecione o Valor</h3>
-        <div id="selection-options">
-            </div>
+        <div id="selection-options"></div>
         <button type="button" id="close-selection-button" onclick="closeSelectionModal()">Fechar</button>
     </div>
 </div>
 
 <div id="info-overlay">
     <div id="info-output">
-        <h2>ESTIMATIVA - V3</h2>
+        <h2>ESTIMATIVA - V4</h2>
         <h3>Desenvolvido por IURI VOLNEY</h3>
         <h4>iuri.volney@gmail.com</h4>
         <div id="card-display">
@@ -480,239 +395,188 @@
         <div id="card-values">
             A - K - Q - J - 10 - 9 - 8 - 7 - 6 - 5 - 4 - 3 - 2
         </div>
-        <button id="close-info-button" onclick="fecharInfo()">Fechar</button>
+        <button class="main-btn" style="background:#6c757d; margin-top:20px;" onclick="fecharInfo()">Fechar</button>
     </div>
 </div>
 
-
 <script>
+const COLUNAS = 12;
+const JOGADORES = 6;
+const STORAGE_KEY = 'estimativa_save_v3';
 
-// Função para fechar o modal de seleção
-function closeSelectionModal() {
-    document.getElementById('selection-overlay').style.display = 'none';
+// Inicialização da Tabela
+function renderizarTabela() {
+    const tbody = document.getElementById('tabela-corpo');
+    let html = '';
+    for (let i = 0; i < JOGADORES; i++) {
+        html += `<tr class="linha-estimativa" data-jogador-index="${i}"> 
+            <td rowspan="2" class="jogador"><input type='text' oninput="saveData()" /></td>
+            <td class="tipo-col">Estimativa</td> ${Array.from({length: COLUNAS}).map((_, col) => 
+                `<td class="celula-estimativa" data-col="${col + 1}">
+                    <button type="button" class="botao-estimativa" onclick="openEstimateSelector(this, ${col + 1})"></button>
+                </td>` 
+            ).join('')}
+            <td rowspan="2" class="total">0</td>
+        </tr>
+        <tr class="linha-pontos" data-jogador-index="${i}"> 
+            <td class="tipo-col">Ponto</td> ${Array.from({length: COLUNAS}).map((_, col) =>
+                `<td class="celula-pontos" data-col="${col + 1}">
+                    <button type="button" class="botao-pontos" onclick="openPontosSelector(this, ${col + 1})"></button>
+                </td>`
+            ).join('')}
+        </tr>`;
+    }
+    tbody.innerHTML = html;
 }
 
-// bloqueio de saída
-window.addEventListener('beforeunload', function (e) {
-    e.preventDefault();
-    e.returnValue = '';
-});
-
-/**
- * Obtém opções de pontos condicionais com base na estimativa.
- * @param {number} colIndex - O índice da coluna (1 a 12).
- * @param {number} estimativa - O valor da estimativa (0 a colIndex).
- * @returns {number[]} Array de opções de pontos.
- */
-function getConditionalPontosOptions(colIndex, estimativa) {
-    // Se a estimativa não for um número válido (botão vazio, etc.), retorna um array vazio.
-    if (isNaN(estimativa) || estimativa === null) {
-        return []; 
-    }
+// Persistência de Dados
+function saveData() {
+    const data = { jogadors: [] };
+    const rows = document.querySelectorAll('.linha-estimativa');
     
-    const N = colIndex;
-    let explicitOptions = [];
+    rows.forEach((row, idx) => {
+        const pRow = row.nextElementSibling;
+        const jogadorData = {
+            name: row.querySelector('.jogador input').value,
+            estimates: Array.from(row.querySelectorAll('.botao-estimativa')).map(b => b.textContent),
+            scores: Array.from(pRow.querySelectorAll('.botao-pontos')).map(b => b.textContent)
+        };
+        data.jogadors.push(jogadorData);
+    });
     
-    // Se PONTOS == ESTIMATIVA, PONTOS = ESTIMATIVA + 10 (Bônus)
-    // Se PONTOS > ESTIMATIVA, PONTOS = 1 até (N - ESTIMATIVA)
-    // Se PONTOS < ESTIMATIVA, PONTOS = -(ESTIMATIVA) até -1
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    atualizarTotais();
+}
 
-    if (estimativa === 0) {
-        // Valores positivos de 1 a N
-        for(let i = 1; i <= N; i++) explicitOptions.push(i);
-        // Bônus fixo de 10
-        explicitOptions.push(10);
-    } else if (estimativa >= 1 && estimativa <= N) {
-        // Valores negativos (errou o número)
-        for(let i = -estimativa; i <= -1; i++) explicitOptions.push(i);
+function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    
+    const data = JSON.parse(saved);
+    const rows = document.querySelectorAll('.linha-estimativa');
+    
+    data.jogadors.forEach((pData, idx) => {
+        if (idx >= JOGADORES) return;
+        const row = rows[idx];
+        const pRow = row.nextElementSibling;
         
-        // Valores positivos (acertou o número, mas errou a estimativa)
-        // Valores de 1 até N-estimativa
-        for(let i = 1; i <= N - estimativa; i++) explicitOptions.push(i);
-
-        // Bônus (acertou a estimativa)
-        explicitOptions.push(estimativa + 10);
-    } 
-    // Garante que só haja números únicos
-    return Array.from(new Set(explicitOptions)).sort((a, b) => a - b);
+        row.querySelector('.jogador input').value = pData.name || "";
+        
+        const estBtns = row.querySelectorAll('.botao-estimativa');
+        pData.estimates.forEach((val, i) => estBtns[i].textContent = val);
+        
+        const scoBtns = pRow.querySelectorAll('.botao-pontos');
+        pData.scores.forEach((val, i) => scoBtns[i].textContent = val);
+    });
+    atualizarTotais();
 }
 
-
-// ATUALIZAÇÃO DE TOTAIS
-function atualizarTotais() {
-    const linhas = document.querySelectorAll('#tabela tbody tr');
-
-    for (let i = 0; i < linhas.length; i += 2) {
-        const pontosButtons = linhas[i+1].querySelectorAll('.score-button'); 
-        let soma = 0;
-        pontosButtons.forEach(button => {
-            // IMPORTANTE: Considerar apenas botões com conteúdo numérico válido
-            const val = parseInt(button.textContent); 
-            if (!isNaN(val)) soma += val; 
-        });
-        const totalCell = linhas[i].querySelector('.total');
-        if (totalCell) totalCell.textContent = soma;
+function resetarJogo() {
+    const confirmacao = prompt("Para zerar todos os dados, digite a palavra: APAGAR");
+    if (confirmacao.toUpperCase() === "APAGAR") {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+    } else if (confirmacao !== null) {
+        alert("Palavra incorreta. Os dados foram mantidos.");
     }
 }
 
+// Funções de Lógica do Jogo
+function getConditionalPontosOptions(colIndex, estimativa) {
+    if (isNaN(estimativa) || estimativa === null) return [];
+    const N = colIndex;
+    let options = [];
+    if (estimativa === 0) {
+        for(let i = 1; i <= N; i++) options.push(i);
+        options.push(10);
+    } else {
+        for(let i = -estimativa; i <= -1; i++) options.push(i);
+        for(let i = 1; i <= N - estimativa; i++) options.push(i);
+        options.push(estimativa + 10);
+    } 
+    return Array.from(new Set(options)).sort((a, b) => a - b);
+}
 
-// SELETORES GENÉRICOS
+function atualizarTotais() {
+    const rows = document.querySelectorAll('.linha-estimativa');
+    rows.forEach(row => {
+        const pRow = row.nextElementSibling;
+        const scoreButtons = pRow.querySelectorAll('.botao-pontos');
+        let soma = 0;
+        scoreButtons.forEach(btn => {
+            const val = parseInt(btn.textContent);
+            if (!isNaN(val)) soma += val;
+        });
+        row.querySelector('.total').textContent = soma;
+    });
+}
 
-// Função genérica para abrir o seletor de números (AGORA MODAL)
 function openSelector(button, options, title) {
     const overlay = document.getElementById('selection-overlay');
     const optionsContainer = document.getElementById('selection-options');
-    const modalTitle = document.querySelector('#selection-modal h3');
-    
-    // Limpa opções antigas
+    document.querySelector('#selection-modal h3').textContent = title || 'Selecione';
     optionsContainer.innerHTML = '';
     
-    // Define o título 
-    modalTitle.textContent = title || 'Selecione o Valor';
-    
-    // Cria os botões de opção e injeta
-    options.forEach(optionValue => {
-        const optionButton = document.createElement('button');
-        optionButton.textContent = optionValue;
-        optionButton.type = 'button';
-        
-        // Atribui a função de seleção, passando o botão original da célula
-        optionButton.onclick = function() {
-            selectValue(button, optionValue);
-            closeSelectionModal(); // Fechar o modal após selecionar
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.onclick = () => {
+            button.textContent = opt;
+            if (button.classList.contains('botao-estimativa')) {
+                const col = button.closest('.celula-estimativa').dataset.col;
+                const pBtn = button.closest('.linha-estimativa').nextElementSibling.querySelector(`.celula-pontos[data-col="${col}"] .botao-pontos`);
+                pBtn.textContent = "";
+            }
+            closeSelectionModal();
+            saveData();
         };
-        
-        optionsContainer.appendChild(optionButton);
+        optionsContainer.appendChild(btn);
     });
-
-    // Exibe o modal
     overlay.style.display = 'flex';
 }
 
-/**
- * Seleciona o valor e, se for uma ESTIMATIVA, limpa o PONTO correspondente.
- * @param {HTMLElement} button - O botão que foi clicado.
- * @param {number|string} value - O valor a ser inserido no botão.
- */
-function selectValue(button, value) {
-    button.textContent = value;
-    
-    // 1. Identifica se o botão clicado é um botão de estimativa
-    if (button.classList.contains('estimate-button')) {
-        const linhaEstimativa = button.closest('.estimativa-row');
-        const colIndex = button.closest('.estimate-cell').getAttribute('data-col');
-        
-        // Encontra o botão de ponto correspondente na linha seguinte
-        // (A linha de pontos é sempre a próxima)
-        const linhaPontos = linhaEstimativa.nextElementSibling;
-        if (linhaPontos && linhaPontos.classList.contains('pontos-row')) {
-            const pontoCell = linhaPontos.querySelector(`.score-cell[data-col="${colIndex}"]`);
-            if (pontoCell) {
-                const pontoButton = pontoCell.querySelector('.score-button');
-                // Limpa o botão de ponto para forçar o jogador a reabrir
-                pontoButton.textContent = ""; 
-            }
-        }
-    }
-    
-    // 2. ATUALIZA O TOTAL APÓS CADA SELEÇÃO
-    atualizarTotais(); 
+function openEstimateSelector(btn, max) {
+    const opts = Array.from({length: max + 1}, (_, i) => i);
+    openSelector(btn, opts, `Estimativa (0 a ${max})`);
 }
 
-// Funções específicas de abertura (chamam a função genérica)
-function openEstimateSelector(button, maxVal) {
-    const options = [];
-    for (let i = 0; i <= maxVal; i++) {
-        options.push(i);
-    }
-    openSelector(button, options, `Estimativa (0 a ${maxVal})`);
+function openPontosSelector(btn, col) {
+    const estRow = btn.closest('.linha-pontos').previousElementSibling;
+    const estVal = parseInt(estRow.querySelector(`.celula-estimativa[data-col="${col}"] button`).textContent);
+    if (isNaN(estVal)) return alert("Selecione a ESTIMATIVA primeiro.");
+    openSelector(btn, getConditionalPontosOptions(col, estVal), `Pontos (Est: ${estVal})`);
 }
 
-/**
- * Obtém a estimativa da mesma rodada antes de abrir o seletor de pontos.
- * @param {HTMLElement} button - O botão de ponto clicado.
- * @param {number} colIndex - O índice da coluna (rodada).
- */
-function openPontosSelector(button, colIndex) {
-    // Encontra a linha de estimativa correspondente
-    const linhaPontos = button.closest('.pontos-row');
-    // A linha de estimativa é sempre a linha anterior
-    const linhaEstimativa = linhaPontos.previousElementSibling; 
-    
-    let estimativa = null;
-    if (linhaEstimativa && linhaEstimativa.classList.contains('estimativa-row')) {
-        // Encontra o botão de estimativa na mesma coluna
-        const estimateCell = linhaEstimativa.querySelector(`.estimate-cell[data-col="${colIndex}"]`);
-        const estimateButton = estimateCell ? estimateCell.querySelector('.estimate-button') : null;
-        
-        if (estimateButton) {
-            // Tenta obter o valor. Se for string vazia ou não for número, será null.
-            const estVal = parseInt(estimateButton.textContent);
-            estimativa = isNaN(estVal) ? null : estVal;
-        }
-    }
-    
-    // Se nenhuma estimativa foi selecionada, exibe uma mensagem ou não abre o modal
-    if (estimativa === null) {
-        alert("Por favor, selecione primeiro a *ESTIMATIVA* para esta rodada.");
-        return; 
-    }
-    
-    const options = getConditionalPontosOptions(colIndex, estimativa);
-    openSelector(button, options, `Pontos (Rodada ${colIndex}, Est: ${estimativa})`);
-}
-
-
-// MOSTRAR RANKING
 function mostrarRanking() {
-    // Garante que os totais estejam atualizados
-    atualizarTotais(); 
-    
-    const linhas = document.querySelectorAll('#tabela tbody tr');
-    let ranking = [];
-
-    for (let i = 0; i < linhas.length; i += 2) {
-        const nome = linhas[i].querySelector('.player input').value || "-";
-        const total = parseInt(linhas[i].querySelector('.total').textContent) || 0;
-        ranking.push({ nome, total });
-    }
-
-    // Ordena o ranking do maior para o menor total
-    ranking.sort((a, b) => b.total - a.total);
-
-    // Cria o HTML do conteúdo do ranking
-    let rankingContent = '<h2>🏆 Ranking Estimativa 🏆</h2><ul>';
-    ranking.forEach((r, i) => {
-        rankingContent += `<li>
-            <span class="rank-number">${i+1}º</span> 
-            <span class="rank-player">${r.nome}</span> 
-            <span class="rank-score">${r.total} pts</span>
-        </li>`;
+    const jogadors = [];
+    document.querySelectorAll('.linha-estimativa').forEach(row => {
+        jogadors.push({
+            nome: row.querySelector('.jogador input').value || "-",
+            total: parseInt(row.querySelector('.total').textContent) || 0
+        });
     });
-    
-    // Adiciona o botão de fechar
-    rankingContent += '<button id="close-button" onclick="fecharRanking()">Fechar</button>';
+    jogadors.sort((a, b) => b.total - a.total);
 
-    // Insere o HTML no modal e o exibe
-    document.getElementById('ranking-output').innerHTML = rankingContent;
+    let html = '<h2>🏆Ranking Estimativa🏆</h2><ul>' + jogadors.map((p, i) => 
+        `<li><span class="rank-number">${i+1}º</span><span class="rank-jogador">${p.nome}</span><span class="rank-score">${p.total} pts</span></li>`
+    ).join('') + '</ul><button id="close-button" onclick="fecharRanking()">Fechar</button>';
+    
+    document.getElementById('ranking-output').innerHTML = html;
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
 
-// Função para fechar o ranking
-function fecharRanking() {
-    document.getElementById('ranking-overlay').style.display = 'none';
-}
+// Utils e Eventos
+function closeSelectionModal() { document.getElementById('selection-overlay').style.display = 'none'; }
+function fecharRanking() { document.getElementById('ranking-overlay').style.display = 'none'; }
+function mostrarInfo() { document.getElementById('info-overlay').style.display = 'flex'; }
+function fecharInfo() { document.getElementById('info-overlay').style.display = 'none'; }
 
-// Função para mostrar o modal de Informação
-function mostrarInfo() {
-    document.getElementById('info-overlay').style.display = 'flex';
-}
+window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
 
-// Função para fechar o modal de Informação
-function fecharInfo() {
-    document.getElementById('info-overlay').style.display = 'none';
-}
+// Start
+renderizarTabela();
+loadData();
+
 </script>
-
 </body>
 </html>
