@@ -535,7 +535,7 @@ function loadData() {
 
 function resetarJogo() {
     const confirmacao = prompt("Para zerar todos os dados, digite a palavra: APAGAR");
-    if (confirmacao.toUpperCase() === "APAGAR") {
+    if (confirmacao.toUpperCase().trim() === "APAGAR") {
         localStorage.removeItem(STORAGE_KEY);
         location.reload();
     } else if (confirmacao !== null) {
