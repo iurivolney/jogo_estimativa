@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Estimativa</title>
 
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8R4QXMLDVK"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -463,7 +462,6 @@ const JOGADORES = 6;
 const STORAGE_KEY = 'estimativa_save_v3';
 const THEME_KEY = 'estimativa_theme';
 
-// Alternância de Tema
 function toggleTheme() {
     const isDark = document.body.classList.toggle('dark-theme');
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
@@ -476,7 +474,6 @@ function loadTheme() {
     }
 }
 
-// Inicialização da Tabela
 function renderizarTabela() {
     const tbody = document.getElementById('tabela-corpo');
     let html = '';
@@ -501,11 +498,9 @@ function renderizarTabela() {
     tbody.innerHTML = html;
 }
 
-// Persistência de Dados
 function saveData() {
     const data = { jogadors: [] };
     const rows = document.querySelectorAll('.linha-estimativa');
-    
     rows.forEach((row, idx) => {
         const pRow = row.nextElementSibling;
         const jogadorData = {
@@ -515,7 +510,6 @@ function saveData() {
         };
         data.jogadors.push(jogadorData);
     });
-    
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     atualizarTotais();
 }
@@ -523,20 +517,15 @@ function saveData() {
 function loadData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    
     const data = JSON.parse(saved);
     const rows = document.querySelectorAll('.linha-estimativa');
-    
     data.jogadors.forEach((pData, idx) => {
         if (idx >= JOGADORES) return;
         const row = rows[idx];
         const pRow = row.nextElementSibling;
-        
         row.querySelector('.jogador input').value = pData.name || "";
-        
         const estBtns = row.querySelectorAll('.botao-estimativa');
         pData.estimates.forEach((val, i) => estBtns[i].textContent = val);
-        
         const scoBtns = pRow.querySelectorAll('.botao-pontos');
         pData.scores.forEach((val, i) => scoBtns[i].textContent = val);
     });
@@ -553,7 +542,6 @@ function resetarJogo() {
     }
 }
 
-// Funções de Lógica do Jogo
 function getConditionalPontosOptions(colIndex, estimativa) {
     if (isNaN(estimativa) || estimativa === null) return [];
     const N = colIndex;
@@ -588,7 +576,6 @@ function openSelector(button, options, title) {
     const optionsContainer = document.getElementById('selection-options');
     document.querySelector('#selection-modal h3').textContent = title || 'Selecione';
     optionsContainer.innerHTML = '';
-    
     options.forEach(opt => {
         const btn = document.createElement('button');
         btn.textContent = opt;
@@ -607,9 +594,33 @@ function openSelector(button, options, title) {
     overlay.style.display = 'flex';
 }
 
-function openEstimateSelector(btn, max) {
-    const opts = Array.from({length: max + 1}, (_, i) => i);
-    openSelector(btn, opts, `Estimativa (0 a ${max})`);
+function openEstimateSelector(btn, col) {
+    // Validação inteligente: cobra apenas de quem tem nome preenchido
+    if (col > 1) {
+        const estRows = document.querySelectorAll('.linha-estimativa');
+        let rodadaAnteriorCompleta = true;
+        
+        estRows.forEach(row => {
+            const nome = row.querySelector('.jogador input').value.trim();
+            const pRow = row.nextElementSibling;
+            
+            // Se houver nome, obriga ter pontos na coluna anterior
+            if (nome !== "") {
+                const pontoAnterior = pRow.querySelector(`.celula-pontos[data-col="${col - 1}"] button`).textContent;
+                if (pontoAnterior === "") {
+                    rodadaAnteriorCompleta = false;
+                }
+            }
+        });
+
+        if (!rodadaAnteriorCompleta) {
+            alert(`Atenção: Finalize os pontos da rodada ${col - 1} para todos os jogadores ativos.`);
+            return;
+        }
+    }
+    
+    const opts = Array.from({length: col + 1}, (_, i) => i);
+    openSelector(btn, opts, `Estimativa (0 a ${col})`);
 }
 
 function openPontosSelector(btn, col) {
@@ -622,38 +633,30 @@ function openPontosSelector(btn, col) {
 function mostrarRanking() {
     const jogadors = [];
     document.querySelectorAll('.linha-estimativa').forEach(row => {
-        jogadors.push({
-            nome: row.querySelector('.jogador input').value || "-",
-            total: parseInt(row.querySelector('.total').textContent) || 0
-        });
+        const nome = row.querySelector('.jogador input').value.trim();
+        if(nome !== "") {
+            jogadors.push({
+                nome: nome,
+                total: parseInt(row.querySelector('.total').textContent) || 0
+            });
+        }
     });
-
-    // Ordenação decrescente por pontuação
     jogadors.sort((a, b) => b.total - a.total);
-
     let rankingHtml = '<h2>🏆Ranking Estimativa🏆</h2><ul>';
     let posicaoAtual = 1;
-
     jogadors.forEach((p, i) => {
-        // Se a pontuação for menor que o jogador anterior, incrementa a posição em 1 (Ranking Denso)
-        if (i > 0 && p.total < jogadors[i - 1].total) {
-            posicaoAtual++;
-        }
-        
+        if (i > 0 && p.total < jogadors[i - 1].total) posicaoAtual++;
         rankingHtml += `<li>
             <span class="rank-number">${posicaoAtual}º</span>
             <span class="rank-jogador">${p.nome}</span>
             <span class="rank-score">${p.total} pts</span>
         </li>`;
     });
-
     rankingHtml += '</ul><button id="close-button" onclick="fecharRanking()">Fechar</button>';
-    
     document.getElementById('ranking-output').innerHTML = rankingHtml;
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
 
-// Utils e Eventos
 function closeSelectionModal() { document.getElementById('selection-overlay').style.display = 'none'; }
 function fecharRanking() { document.getElementById('ranking-overlay').style.display = 'none'; }
 function mostrarInfo() { document.getElementById('info-overlay').style.display = 'flex'; }
@@ -661,11 +664,9 @@ function fecharInfo() { document.getElementById('info-overlay').style.display = 
 
 window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
 
-// Start
 loadTheme();
 renderizarTabela();
 loadData();
-
 </script>
 </body>
 </html>
