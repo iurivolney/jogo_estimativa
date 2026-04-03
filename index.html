@@ -211,7 +211,7 @@ function renderizarTabelaVazia() {
     for (let i = 0; i < 6; i++) {
         html += `
         <tr class="linha-estimativa">
-            <td rowspan="2" class="jogador"><input type="text" placeholder="Jogador" oninput="salvarNoFirebase()" ${!isOrganizer ? 'disabled' : ''}></td>
+            <td rowspan="2" class="jogador"><input type="text" placeholder="" oninput="salvarNoFirebase()" ${!isOrganizer ? 'disabled' : ''}></td>
             <td class="tipo-col">Est.</td>
             ${Array.from({length: 12}).map((_, c) => `<td><button class="botao-estimativa" data-col="${c+1}" onclick="abrirSeletor(this, ${c+1}, 'est')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}
             <td rowspan="2" class="total" style="font-weight:bold">0</td>
