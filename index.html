@@ -3,567 +3,205 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Estimativa</title>
+<title>Estimativa - Multiplayer</title>
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8R4QXMLDVK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-8R4QXMLDVK');
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
-    /* Variáveis de Cores - Tema Claro (Padrão) */
     :root {
-        --bg-body: #f4f4f9;
-        --bg-table: white;
-        --bg-header: #0d6efd;
-        --text-main: #333;
-        --border-color: #ddd;
-        --bg-est-row: #e0f7ff;
-        --bg-pts-row: white;
-        --bg-modal: white;
-        --text-ranking-score: #333;
+        --bg-body: #f4f4f9; --bg-table: white; --bg-header: #0d6efd;
+        --text-main: #333; --border-color: #ddd; --bg-est-row: #e0f7ff;
+        --bg-pts-row: white; --bg-modal: white;
     }
 
-    /* Variáveis de Cores - Tema Escuro */
     body.dark-theme {
-        --bg-body: #121212;
-        --bg-table: #1e1e1e;
-        --bg-header: #0a4da3;
-        --text-main: #e0e0e0;
-        --border-color: #444;
-        --bg-est-row: #1a3a4a;
-        --bg-pts-row: #1e1e1e;
-        --bg-modal: #2d2d2d;
-        --text-ranking-score: #fff;
+        --bg-body: #121212; --bg-table: #1e1e1e; --bg-header: #0a4da3;
+        --text-main: #e0e0e0; --border-color: #444; --bg-est-row: #1a3a4a;
+        --bg-pts-row: #1e1e1e; --bg-modal: #2d2d2d;
     }
 
-    body {
-        font-family: Arial, sans-serif;
-        background: var(--bg-body);
-        margin: 0;
-        padding: 10px; 
-        color: var(--text-main);
-        transition: background 0.3s, color 0.3s;
-    }
+    body { font-family: Arial, sans-serif; background: var(--bg-body); margin: 0; padding: 10px; color: var(--text-main); transition: background 0.3s, color 0.3s; }
     
-    .table-container {
-        overflow: auto; 
-        max-height: 80vh; 
-        margin-bottom: 5px;
+    #room-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--bg-body); display: flex; justify-content: center; align-items: center; z-index: 20000;
     }
-    table {
-        width: 100%; 
-        min-width: fit-content;
-        border-collapse: collapse;
-        background: var(--bg-table);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border-radius: 8px;
-    }
+    .room-card { background: var(--bg-table); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 300px; border: 2px solid var(--bg-header); }
+    .room-card input { width: 100%; padding: 12px; margin: 10px 0; font-size: 18px; text-transform: uppercase; border: 2px solid var(--bg-header); border-radius: 8px; box-sizing: border-box; background: var(--bg-table); color: var(--text-main); }
+
+    .table-container { overflow: auto; max-height: 75vh; margin-bottom: 5px; }
+    table { width: 100%; border-collapse: collapse; background: var(--bg-table); }
+    th, td { border: 1px solid var(--border-color); padding: 4px; text-align: center; white-space: nowrap; }
     
-    th, td {
-        border: 1px solid var(--border-color);
-        padding: 4px; 
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-    
-    td {
-        z-index: 1; 
-    }
+    th { background: var(--bg-header); color: white; position: sticky; top: 0; z-index: 300; }
 
-    input {
-        padding: 4px;
-        text-align: center;
-        border: 1px solid #aaa;
-        border-radius: 4px;
-        box-sizing: border-box;
-        background: var(--bg-table);
-        color: var(--text-main);
-    }
+    /* COLUNAS FIXAS COM CORES DINÂMICAS */
+    .jogador { position: sticky; left: 0; z-index: 101; width: 110px; font-weight: bold; }
+    .tipo-col { position: sticky; left: 110px; z-index: 101; width: 60px; font-weight: bold; }
 
-    .botao-estimativa { 
-        width: 30px; 
-        padding: 2px;
-        height: 35px;
-        box-sizing: border-box;
-        font-weight: bold;
-        border: 1px solid #aaa;
-        background-color: #deeafc;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.1s;
-        color: #000; 
-    }
-	.botao-pontos { 
-        width: 30px; 
-        padding: 2px;
-        height: 35px;
-        box-sizing: border-box;
-        font-weight: bold;
-        border: 1px solid #aaa;
-        background-color: #faf1ed;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.1s;
-        color: #000; 
-    }
-    .botao-estimativa:hover, .botao-pontos:hover {
-        background-color: #e0e0e0;
-    }
+    thead th:nth-child(1) { position: sticky; left: 0; z-index: 302; }
+    thead th:nth-child(2) { position: sticky; left: 110px; z-index: 301; }
 
-    .celula-estimativa, .celula-pontos {
-        position: relative; 
-        padding: 2px;
-    }
+    /* Cores das Linhas aplicadas a todas as células, inclusive as fixas */
+    .linha-estimativa td { background-color: var(--bg-est-row); }
+    .linha-pontos td { background-color: var(--bg-pts-row); }
 
-    .jogador input[type='text'] {
-        width: 98px !important; 
-    }
-    
-    th {
-        background: var(--bg-header);
-        color: white;
-        font-weight: bold;
-        position: sticky; 
-        top: 0;
-        z-index: 200; 
-    }
+    .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
+    .botao-estimativa, .botao-pontos { width: 30px; height: 35px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
+    .botao-estimativa { background-color: #deeafc; }
+    .botao-pontos { background-color: #faf1ed; }
 
-    .linha-estimativa td {
-        background-color: var(--bg-est-row); 
-    }
-    .linha-pontos td {
-        background-color: var(--bg-pts-row); 
-    }
+    #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
+    #selection-modal, #ranking-output, #info-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 350px; color: var(--text-main); }
 
-    .jogador { 
-        width: 110px; 
-        font-weight: bold;
-        position: sticky;
-        left: 0;
-        z-index: 101; 
-    }
-    
-    td.tipo-col {
-        position: sticky;
-        left: 110px; 
-        width: 60px; 
-        font-weight: bold;
-        z-index: 100; 
-    }
+    .main-btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; color: white; background: #0d6efd; margin: 5px; font-size: 16px; }
+    #info-icon, #theme-icon { position: fixed; bottom: 15px; width: 40px; height: 40px; color: white; border-radius: 50%; text-align: center; line-height: 40px; cursor: pointer; z-index: 10000; }
+    #info-icon { right: 15px; background: #0d6efd; font-size: 24px; }
+    #theme-icon { right: 65px; background: #333; }
 
-    .linha-estimativa .jogador,
-    .linha-estimativa .tipo-col {
-        background-color: var(--bg-est-row) !important;
-    }
-    .linha-pontos .jogador,
-    .linha-pontos .tipo-col {
-        background-color: var(--bg-pts-row) !important; 
-    }
-
-    .table-container thead th:nth-child(1) {
-        position: sticky;
-        left: 0;
-        z-index: 202;
-        width: 110px; 
-    }
-
-    .table-container thead th:nth-child(2) {
-        position: sticky;
-        left: 110px; 
-        background: var(--bg-header); 
-        color: white;
-        z-index: 201;
-    }
-    
-    #selection-overlay, #ranking-overlay, #info-overlay {
-        position: fixed; 
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7); 
-        display: none; 
-        justify-content: center;
-        align-items: center;
-        z-index: 9998; 
-    }
-
-    #selection-modal, #ranking-output, #info-output {
-        padding: 15px;
-        border: 2px solid #0d6efd;
-        border-radius: 10px;
-        background-color: var(--bg-modal);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        width: 90%; 
-        max-width: 350px; 
-        max-height: 80%; 
-        overflow-y: auto;
-        position: relative;
-        animation: fadeIn 0.3s ease-out;
-        color: var(--text-main);
-    }
-    
-    #selection-modal {
-        max-width: 250px; 
-    }
-    
-    #selection-modal h3, #ranking-output h2, #info-output h2 {
-        color: #0d6efd;
-        text-align: center;
-        margin-top: 0;
-    }
-    
-    #selection-options {
-        display: flex;
-        flex-wrap: wrap; 
-        gap: 10px;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    #selection-options button {
-        width: 50px; 
-        padding: 10px 5px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: #f0f0f0;
-        color: #333;
-        cursor: pointer;
-        margin: 0; 
-        box-sizing: border-box;
-    }
-    
-  #close-selection-button {
-    display: block;
-    width: 100%;
-    margin-top: 15px;
-    background: #717d84; 
-    color: white;
-    padding: 12px;
-    font-size: 18px;
-    border: none;
-    border-radius: 12px; 
-    cursor: pointer;
-    font-weight: normal;
-}
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
-
-    #ranking-output ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    #ranking-output li {
-        margin: 10px 0;
-        padding: 8px;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 1.1em;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .rank-number {
-        font-weight: bold;
-        color: #0d6efd;
-        min-width: 40px;
-    }
-
-    .rank-score {
-        font-weight: bold;
-        color: var(--text-ranking-score);
-        min-width: 70px;
-        text-align: right;
-    }
-
-    .rank-jogador {
-        flex-grow: 1;
-        text-align: left;
-        margin: 0 10px;
-    }
-
-    .main-btn {
-        margin-top: 5px; 
-        padding: 8px 20px; 
-        font-size: 16px;
-        border: none;
-        border-radius: 6px;
-        background: #0d6efd;
-        color: white;
-        cursor: pointer;
-    }
-
-    .btn-reset {
-        background: #dc3545;
-        margin-left: 10px;
-    }
-
-    #close-button {
-        display: block;
-        width: 100%;
-        margin-top: 15px;
-        background: #dc3545;
-        padding: 10px;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    /* Ícones no canto inferior direito */
-    #info-icon, #theme-icon {
-        position: fixed;
-        bottom: 15px;
-        width: 40px;
-        height: 40px;
-        color: white;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 40px;
-        font-size: 20px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
-        z-index: 10000;
-        transition: transform 0.2s;
-    }
-
-    #info-icon {
-        right: 15px;
-        background-color: #0d6efd;
-        font-size: 24px;
-    }
-
-    #theme-icon {
-        right: 65px; /* Posicionado à esquerda do info-icon */
-        background-color: #333;
-    }
-    
-    body.dark-theme #theme-icon {
-        background-color: #f1c40f;
-        color: #333;
-    }
-
-    #info-output {
-        max-width: 300px;
-        text-align: center;
-    }
-
-    #card-display {
-        display: flex;
-        justify-content: center;
-        gap: 5px;
-        margin-top: 15px;
-    }
-
-    .card {
-        border: 1px solid #333;
-        border-radius: 5px;
-        background-color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-        aspect-ratio: 2 / 3;
-    }
-
-    .suit {
-        font-weight: bold;
-        text-align: center;
-        line-height: 1;
-    }
-
-    .red { color: #dc3545; }
-    .black { color: #333; }
-
-    #card-diamante, #card-espada, #card-copas, #card-paus { width: 80px; }
-    #card-diamante .suit { font-size: 100px; }
-    #card-espada .suit { font-size: 90px; }
-    #card-copas .suit { font-size: 80px; }
-    #card-paus .suit { font-size: 70px; }
-
-    #card-values {
-        margin-top: 15px;
-        font-size: 0.9em;
-        font-weight: bold;
-        color: var(--text-main);
-    }
+    /* Estilo do Ranking Original */
+    #ranking-output h2 { color: var(--bg-header); margin-top: 0; }
+    #ranking-output ul { list-style: none; padding: 0; text-align: left; }
+    #ranking-output li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 18px; }
 </style>
 </head>
 <body>
-<img src="titulo.png" style="width:100%;  height:auto;">
+
+<div id="room-overlay">
+    <div class="room-card">
+        <h2 style="color:#0d6efd">ESTIMATIVA V4</h2>
+        <input type="text" id="room-id" placeholder="NOME DA SALA" maxlength="15">
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="main-btn" style="flex:1" onclick="entrarNaSala('organizador')">Organizador</button>
+            <button class="main-btn" style="flex:1; background:#6c757d" onclick="entrarNaSala('espectador')">Espectador</button>
+        </div>
+    </div>
+</div>
+
+<img src="titulo.png" style="width:100%; height:auto;">
+<div id="status-bar" style="text-align:center; padding: 5px; font-size: 12px; color: #666; font-weight: bold;"></div>
 
 <div class="table-container">
     <table id="tabela">
         <thead>
             <tr>
-                <th class="jogador fixed-col">Jogador</th>
-                <th class="fixed-col">Tipo</th>
+                <th class="jogador">Jogador</th>
+                <th class="tipo-col">Tipo</th>
                 <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
                 <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
                 <th>TOTAL</th>
             </tr>
         </thead>
-        <tbody id="tabela-corpo">
-            </tbody>
+        <tbody id="tabela-corpo"></tbody>
     </table>
 </div>
-<div style="width:100%; display:flex; justify-content:center;">
-<button class="main-btn" onclick="mostrarRanking()" style="width:40%;" >Ranking</button>
-<button class="main-btn btn-reset" onclick="resetarJogo()" style="width:40%;">Recomeçar</button>
-</div>
-<div id="theme-icon" onclick="toggleTheme()" title="Alternar Tema">🌓</div>
-<div id="info-icon" onclick="mostrarInfo()">!</div>
 
-<div id="ranking-overlay">
-    <div id="ranking-output"></div>
+<div style="width:100%; display:flex; justify-content:center; margin-top: 10px;">
+    <button class="main-btn" style="width:40%" onclick="mostrarRanking()">Ranking</button>
+    <button id="btn-reset" class="main-btn" style="width:40%; background:#dc3545; display:none" onclick="resetarJogo()">Recomeçar</button>
 </div>
 
+<div id="theme-icon" onclick="document.body.classList.toggle('dark-theme')">🌓</div>
+<div id="info-icon" onclick="document.getElementById('info-overlay').style.display='flex'">!</div>
+
+<div id="ranking-overlay"><div id="ranking-output"></div></div>
 <div id="selection-overlay">
     <div id="selection-modal">
         <h3>Selecione o Valor</h3>
-        <div id="selection-options"></div>
-        <button type="button" id="close-selection-button" onclick="closeSelectionModal()">Fechar</button>
+        <div id="selection-options" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+        <button class="main-btn" style="background:#6c757d; width:100%" onclick="document.getElementById('selection-overlay').style.display='none'">Fechar</button>
     </div>
 </div>
 
 <div id="info-overlay">
     <div id="info-output">
-        <h2>ESTIMATIVA - V4</h2>
-        <h3>Desenvolvido por IURI VOLNEY</h3>
-        <h4>iuri.volney@gmail.com</h4>
-        <div id="card-display">
-            <div id="card-diamante" class="card"><span class="suit red">♦</span></div>
-            <div id="card-espada" class="card"><span class="suit black">♠</span></div>
-            <div id="card-copas" class="card"><span class="suit red">♥</span></div>
-            <div id="card-paus" class="card"><span class="suit black">♣</span></div>
-        </div>
-        <div id="card-values">
-            A - K - Q - J - 10 - 9 - 8 - 7 - 6 - 5 - 4 - 3 - 2
-        </div>
-        <button class="main-btn" style="background:#6c757d; margin-top:20px;" onclick="fecharInfo()">Fechar</button>
+        <h2 style="color:#0d6efd">ESTIMATIVA - V4</h2>
+        <p><strong>Desenvolvedor:</strong> IURI VOLNEY</p>
+        <p style="text-align: left; font-size: 14px;">
+            1. O Organizador cria a sala e faz as marcações.<br>
+            2. Espectadores entram com o mesmo nome de sala para acompanhar.<br>
+            3. A sincronização é automática via Firebase.<br>
+            4. O Ranking calcula os pontos em tempo real.
+        </p>
+        <button class="main-btn" style="width:100%" onclick="document.getElementById('info-overlay').style.display='none'">Fechar</button>
     </div>
 </div>
 
 <script>
-const COLUNAS = 12;
-const JOGADORES = 6;
-const STORAGE_KEY = 'estimativa_save_v3';
-const THEME_KEY = 'estimativa_theme';
+const firebaseConfig = {
+  apiKey: "AIzaSyAtB6aqEBIqtqmKMNdylVIosgjGQwOxGVc",
+  authDomain: "estimativa-482421.firebaseapp.com",
+  databaseURL: "https://estimativa-482421-default-rtdb.firebaseio.com",
+  projectId: "estimativa-482421",
+  storageBucket: "estimativa-482421.firebasestorage.app",
+  messagingSenderId: "121884408752",
+  appId: "1:121884408752:web:a6f6048c1b4db7e4c03475",
+  measurementId: "G-PZ0XLEFBWL"
+};
 
-function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-theme');
-    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let currentRoom = "";
+let isOrganizer = false;
+
+function entrarNaSala(modo) {
+    const roomId = document.getElementById('room-id').value.trim().toUpperCase();
+    if (!roomId) return alert("Digite o nome da sala!");
+    currentRoom = roomId;
+    isOrganizer = (modo === 'organizador');
+    document.getElementById('room-overlay').style.display = 'none';
+    document.getElementById('status-bar').innerText = `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
+    if (isOrganizer) document.getElementById('btn-reset').style.display = 'block';
+    
+    renderizarTabelaVazia();
+    
+    db.ref('salas/' + currentRoom).on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) atualizarInterface(data);
+    });
 }
 
-function loadTheme() {
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    }
-}
-
-function renderizarTabela() {
+function renderizarTabelaVazia() {
     const tbody = document.getElementById('tabela-corpo');
     let html = '';
-    for (let i = 0; i < JOGADORES; i++) {
-        html += `<tr class="linha-estimativa" data-jogador-index="${i}"> 
-            <td rowspan="2" class="jogador"><input type='text' oninput="saveData()" /></td>
-            <td class="tipo-col">Estimativa</td> ${Array.from({length: COLUNAS}).map((_, col) => 
-                `<td class="celula-estimativa" data-col="${col + 1}">
-                    <button type="button" class="botao-estimativa" onclick="openEstimateSelector(this, ${col + 1})"></button>
-                </td>` 
-            ).join('')}
-            <td rowspan="2" class="total">0</td>
-        </tr>
-        <tr class="linha-pontos" data-jogador-index="${i}"> 
-            <td class="tipo-col">Ponto</td> ${Array.from({length: COLUNAS}).map((_, col) =>
-                `<td class="celula-pontos" data-col="${col + 1}">
-                    <button type="button" class="botao-pontos" onclick="openPontosSelector(this, ${col + 1})"></button>
-                </td>`
-            ).join('')}
-        </tr>`;
+    for (let i = 0; i < 6; i++) {
+        html += `<tr class="linha-estimativa"><td rowspan="2" class="jogador"><input type="text" placeholder="Jogador" oninput="salvarNoFirebase()" ${!isOrganizer ? 'disabled' : ''}></td><td class="tipo-col">Est.</td>${Array.from({length: 12}).map((_, c) => `<td><button class="botao-estimativa" onclick="abrirSeletor(this, ${c+1}, 'est')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}<td rowspan="2" class="total" style="font-weight:bold">0</td></tr><tr class="linha-pontos"><td class="tipo-col">Pts.</td>${Array.from({length: 12}).map((_, c) => `<td><button class="botao-pontos" onclick="abrirSeletor(this, ${c+1}, 'pts')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}</tr>`;
     }
     tbody.innerHTML = html;
 }
 
-function saveData() {
+function salvarNoFirebase() {
+    if (!isOrganizer) return;
     const data = { jogadors: [] };
-    const rows = document.querySelectorAll('.linha-estimativa');
-    rows.forEach((row, idx) => {
+    document.querySelectorAll('.linha-estimativa').forEach((row) => {
         const pRow = row.nextElementSibling;
-        const jogadorData = {
-            name: row.querySelector('.jogador input').value,
+        data.jogadors.push({
+            nome: row.querySelector('.jogador input').value,
             estimates: Array.from(row.querySelectorAll('.botao-estimativa')).map(b => b.textContent),
             scores: Array.from(pRow.querySelectorAll('.botao-pontos')).map(b => b.textContent)
-        };
-        data.jogadors.push(jogadorData);
+        });
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    atualizarTotais();
+    db.ref('salas/' + currentRoom).set(data);
 }
 
-function loadData() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    const data = JSON.parse(saved);
+function atualizarInterface(data) {
     const rows = document.querySelectorAll('.linha-estimativa');
     data.jogadors.forEach((pData, idx) => {
-        if (idx >= JOGADORES) return;
-        const row = rows[idx];
-        const pRow = row.nextElementSibling;
-        row.querySelector('.jogador input').value = pData.name || "";
-        const estBtns = row.querySelectorAll('.botao-estimativa');
-        pData.estimates.forEach((val, i) => estBtns[i].textContent = val);
-        const scoBtns = pRow.querySelectorAll('.botao-pontos');
-        pData.scores.forEach((val, i) => scoBtns[i].textContent = val);
+        if (!rows[idx]) return;
+        const row = rows[idx]; const pRow = row.nextElementSibling;
+        const inputNome = row.querySelector('.jogador input');
+        if (document.activeElement !== inputNome) inputNome.value = pData.nome || "";
+        row.querySelectorAll('.botao-estimativa').forEach((btn, i) => btn.textContent = pData.estimates[i] || "");
+        pRow.querySelectorAll('.botao-pontos').forEach((btn, i) => btn.textContent = pData.scores[i] || "");
     });
     atualizarTotais();
-}
-
-function resetarJogo() {
-    const confirmacao = prompt("Para zerar todos os dados, digite a palavra: APAGAR");
-    if (confirmacao.toUpperCase().trim() === "APAGAR") {
-        localStorage.removeItem(STORAGE_KEY);
-        location.reload();
-    } else if (confirmacao !== null) {
-        alert("Palavra incorreta. Os dados foram mantidos.");
-    }
-}
-
-function getConditionalPontosOptions(colIndex, estimativa) {
-    if (isNaN(estimativa) || estimativa === null) return [];
-    const N = colIndex;
-    let options = [];
-    if (estimativa === 0) {
-        for(let i = 1; i <= N; i++) options.push(i);
-        options.push(10);
-    } else {
-        for(let i = -estimativa; i <= -1; i++) options.push(i);
-        for(let i = 1; i <= N - estimativa; i++) options.push(i);
-        options.push(estimativa + 10);
-    } 
-    return Array.from(new Set(options)).sort((a, b) => a - b);
 }
 
 function atualizarTotais() {
-    const rows = document.querySelectorAll('.linha-estimativa');
-    rows.forEach(row => {
-        const pRow = row.nextElementSibling;
-        const scoreButtons = pRow.querySelectorAll('.botao-pontos');
+    document.querySelectorAll('.linha-estimativa').forEach(row => {
         let soma = 0;
-        scoreButtons.forEach(btn => {
+        row.nextElementSibling.querySelectorAll('.botao-pontos').forEach(btn => {
             const val = parseInt(btn.textContent);
             if (!isNaN(val)) soma += val;
         });
@@ -571,102 +209,60 @@ function atualizarTotais() {
     });
 }
 
-function openSelector(button, options, title) {
-    const overlay = document.getElementById('selection-overlay');
-    const optionsContainer = document.getElementById('selection-options');
-    document.querySelector('#selection-modal h3').textContent = title || 'Selecione';
-    optionsContainer.innerHTML = '';
-    options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.textContent = opt;
-        btn.onclick = () => {
-            button.textContent = opt;
-            if (button.classList.contains('botao-estimativa')) {
-                const col = button.closest('.celula-estimativa').dataset.col;
-                const pBtn = button.closest('.linha-estimativa').nextElementSibling.querySelector(`.celula-pontos[data-col="${col}"] .botao-pontos`);
-                pBtn.textContent = "";
-            }
-            closeSelectionModal();
-            saveData();
-        };
-        optionsContainer.appendChild(btn);
+function abrirSeletor(btn, col, tipo) {
+    if (!isOrganizer) return;
+    const container = document.getElementById('selection-options');
+    container.innerHTML = '';
+    let opcoes = (tipo === 'est') ? Array.from({length: col + 1}, (_, i) => i) : getOpcoesPontos(col, parseInt(btn.closest('.linha-pontos').previousElementSibling.querySelector(`td:nth-child(${col + 2}) button`).textContent));
+    if (tipo === 'pts' && isNaN(opcoes[0])) return alert("Marque a Estimativa primeiro!");
+    opcoes.forEach(opt => {
+        const b = document.createElement('button'); b.className = 'main-btn'; b.style.width = '50px'; b.textContent = opt;
+        b.onclick = () => { btn.textContent = opt; document.getElementById('selection-overlay').style.display='none'; salvarNoFirebase(); };
+        container.appendChild(b);
     });
-    overlay.style.display = 'flex';
+    document.getElementById('selection-overlay').style.display = 'flex';
 }
 
-function openEstimateSelector(btn, col) {
-    // Validação inteligente: cobra apenas de quem tem nome preenchido
-    if (col > 1) {
-        const estRows = document.querySelectorAll('.linha-estimativa');
-        let rodadaAnteriorCompleta = true;
-        
-        estRows.forEach(row => {
-            const nome = row.querySelector('.jogador input').value.trim();
-            const pRow = row.nextElementSibling;
-            
-            // Se houver nome, obriga ter pontos na coluna anterior
-            if (nome !== "") {
-                const pontoAnterior = pRow.querySelector(`.celula-pontos[data-col="${col - 1}"] button`).textContent;
-                if (pontoAnterior === "") {
-                    rodadaAnteriorCompleta = false;
-                }
-            }
-        });
+function getOpcoesPontos(n, est) {
+    if (isNaN(est)) return [NaN];
+    let opts = (est === 0) ? [...Array(n).keys()].map(i => i + 1).concat(10) : [...Array(est).keys()].map(i => -(i + 1)).concat([...Array(n - est).keys()].map(i => i + 1)).concat(est + 10);
+    return [...new Set(opts)].sort((a,b) => a-b);
+}
 
-        if (!rodadaAnteriorCompleta) {
-            alert(`Atenção: Finalize os pontos da rodada ${col - 1} para todos os jogadores ativos.`);
-            return;
+function resetarJogo() {
+    if (!isOrganizer) return;
+    const confirmacao = prompt("Para zerar os dados, digite: apagar");
+    if (confirmacao && confirmacao.toLowerCase() === "apagar") {
+        if (confirm("Deseja apagar TUDO (incluindo jogadores)?")) {
+            db.ref('salas/' + currentRoom).remove();
+        } else {
+            const data = { jogadors: [] };
+            document.querySelectorAll('.linha-estimativa').forEach(row => {
+                data.jogadors.push({
+                    nome: row.querySelector('.jogador input').value,
+                    estimates: Array.from({length: 12}).map(() => ""),
+                    scores: Array.from({length: 12}).map(() => "")
+                });
+            });
+            db.ref('salas/' + currentRoom).set(data);
         }
     }
-    
-    const opts = Array.from({length: col + 1}, (_, i) => i);
-    openSelector(btn, opts, `Estimativa (0 a ${col})`);
-}
-
-function openPontosSelector(btn, col) {
-    const estRow = btn.closest('.linha-pontos').previousElementSibling;
-    const estVal = parseInt(estRow.querySelector(`.celula-estimativa[data-col="${col}"] button`).textContent);
-    if (isNaN(estVal)) return alert("Selecione a ESTIMATIVA primeiro.");
-    openSelector(btn, getConditionalPontosOptions(col, estVal), `Pontos (Est: ${estVal})`);
 }
 
 function mostrarRanking() {
     const jogadors = [];
     document.querySelectorAll('.linha-estimativa').forEach(row => {
         const nome = row.querySelector('.jogador input').value.trim();
-        if(nome !== "") {
-            jogadors.push({
-                nome: nome,
-                total: parseInt(row.querySelector('.total').textContent) || 0
-            });
-        }
+        if(nome) jogadors.push({ nome, total: parseInt(row.querySelector('.total').textContent) || 0 });
     });
     jogadors.sort((a, b) => b.total - a.total);
-    let rankingHtml = '<h2>🏆Ranking Estimativa🏆</h2><ul>';
-    let posicaoAtual = 1;
-    jogadors.forEach((p, i) => {
-        if (i > 0 && p.total < jogadors[i - 1].total) posicaoAtual++;
-        rankingHtml += `<li>
-            <span class="rank-number">${posicaoAtual}º</span>
-            <span class="rank-jogador">${p.nome}</span>
-            <span class="rank-score">${p.total} pts</span>
-        </li>`;
-    });
-    rankingHtml += '</ul><button id="close-button" onclick="fecharRanking()">Fechar</button>';
-    document.getElementById('ranking-output').innerHTML = rankingHtml;
+    let html = '<h2>🏆 Ranking Estimativa</h2><ul>';
+    jogadors.forEach((p, i) => html += `<li><span>${i+1}º ${p.nome}</span><strong>${p.total} pts</strong></li>`);
+    html += '</ul>';
+    html += `<button class="main-btn" style="width:100%; margin-top:15px; background:#dc3545" onclick="document.getElementById('ranking-overlay').style.display='none'">Fechar</button>`;
+    document.getElementById('ranking-output').innerHTML = html;
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
-
-function closeSelectionModal() { document.getElementById('selection-overlay').style.display = 'none'; }
-function fecharRanking() { document.getElementById('ranking-overlay').style.display = 'none'; }
-function mostrarInfo() { document.getElementById('info-overlay').style.display = 'flex'; }
-function fecharInfo() { document.getElementById('info-overlay').style.display = 'none'; }
-
-window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
-
-loadTheme();
-renderizarTabela();
-loadData();
 </script>
 </body>
 </html>
