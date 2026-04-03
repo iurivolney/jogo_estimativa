@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Estimativa - Multiplayer</title>
+<title>Estimativa - Multiplayer V4</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -27,72 +27,70 @@
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: var(--bg-body); display: flex; justify-content: center; align-items: center; z-index: 20000;
     }
-    .room-card { background: var(--bg-table); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 300px; border: 2px solid var(--bg-header); }
+    .room-card { background: var(--bg-table); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 2px solid var(--bg-header); }
     .room-card input { width: 100%; padding: 12px; margin: 10px 0; font-size: 18px; text-transform: uppercase; border: 2px solid var(--bg-header); border-radius: 8px; box-sizing: border-box; background: var(--bg-table); color: var(--text-main); }
 
-    .table-container { overflow: auto; max-height: 75vh; margin-bottom: 5px; }
+    .table-container { overflow: auto; max-height: 70vh; margin-bottom: 5px; border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; background: var(--bg-table); }
-    th, td { border: 1px solid var(--border-color); padding: 4px; text-align: center; white-space: nowrap; }
+    th, td { border: 1px solid var(--border-color); padding: 6px; text-align: center; white-space: nowrap; }
     
-    th { background: var(--bg-header); color: white; position: sticky; top: 0; z-index: 300; }
+    th { background: #0d6efd !important; color: white !important; position: sticky; top: 0; z-index: 300; }
+    .jogador { position: sticky; left: 0; z-index: 101; width: 110px; font-weight: bold; background-color: inherit; }
+    .tipo-col { position: sticky; left: 110px; z-index: 101; width: 60px; font-weight: bold; background-color: inherit; }
 
-    /* COLUNAS FIXAS COM CORES DINÂMICAS */
-    .jogador { position: sticky; left: 0; z-index: 101; width: 110px; font-weight: bold; }
-    .tipo-col { position: sticky; left: 110px; z-index: 101; width: 60px; font-weight: bold; }
+    thead th:nth-child(1) { position: sticky; left: 0; z-index: 302; background: #0d6efd !important; }
+    thead th:nth-child(2) { position: sticky; left: 110px; z-index: 301; background: #0d6efd !important; }
 
-    thead th:nth-child(1) { position: sticky; left: 0; z-index: 302; }
-    thead th:nth-child(2) { position: sticky; left: 110px; z-index: 301; }
-
-    /* Cores das Linhas aplicadas a todas as células, inclusive as fixas */
     .linha-estimativa td { background-color: var(--bg-est-row); }
     .linha-pontos td { background-color: var(--bg-pts-row); }
 
     .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
-    .botao-estimativa, .botao-pontos { width: 30px; height: 35px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
+    .botao-estimativa, .botao-pontos { width: 32px; height: 35px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
     .botao-estimativa { background-color: #deeafc; }
     .botao-pontos { background-color: #faf1ed; }
 
-    #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
-    #selection-modal, #ranking-output, #info-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 350px; color: var(--text-main); }
-
-    .main-btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; color: white; background: #0d6efd; margin: 5px; font-size: 16px; }
-    #info-icon, #theme-icon { position: fixed; bottom: 15px; width: 40px; height: 40px; color: white; border-radius: 50%; text-align: center; line-height: 40px; cursor: pointer; z-index: 10000; }
+    .main-btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; color: white; background: #0d6efd; margin: 5px; font-size: 16px; transition: opacity 0.2s; }
+    .main-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .float-icon { position: fixed; bottom: 15px; width: 40px; height: 40px; color: white; border-radius: 50%; text-align: center; line-height: 40px; cursor: pointer; z-index: 10000; box-shadow: 0 4px 8px rgba(0,0,0,0.3); font-weight: bold; }
+    #exit-icon { right: 115px; background: #dc3545; font-size: 22px; line-height: 38px; }
+    #theme-icon { right: 65px; background: #333; font-size: 20px; }
     #info-icon { right: 15px; background: #0d6efd; font-size: 24px; }
-    #theme-icon { right: 65px; background: #333; }
 
-    /* Estilo do Ranking Original */
-    #ranking-output h2 { color: var(--bg-header); margin-top: 0; }
-    #ranking-output ul { list-style: none; padding: 0; text-align: left; }
-    #ranking-output li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 18px; }
+    #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
+    
+    /* ESTILO DO RANKING ORIGINAL */
+    #ranking-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 350px; color: var(--text-main); text-align: center; }
+    #ranking-output h2 { margin-top: 0; color: #0d6efd; }
+    #ranking-output ul { list-style: none; padding: 0; margin: 15px 0; }
+    #ranking-output li { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 18px; }
+    .rank-number { font-weight: bold; color: #0d6efd; width: 40px; text-align: left; }
+    .rank-jogador { flex-grow: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+    .rank-score { font-weight: bold; color: var(--text-main); }
+
+    #info-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 450px; color: var(--text-main); }
 </style>
 </head>
 <body>
 
 <div id="room-overlay">
     <div class="room-card">
-        <h2 style="color:#0d6efd">ESTIMATIVA V4</h2>
+        <h2 style="color:#0d6efd; margin-bottom:5px;">ESTIMATIVA V4</h2>
         <input type="text" id="room-id" placeholder="NOME DA SALA" maxlength="15">
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="main-btn" style="flex:1" onclick="entrarNaSala('organizador')">Organizador</button>
-            <button class="main-btn" style="flex:1; background:#6c757d" onclick="entrarNaSala('espectador')">Espectador</button>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+            <button id="btn-entrar-org" class="main-btn" style="margin:0" onclick="entrarNaSala('organizador')">Entrar como Organizador</button>
+            <button id="btn-entrar-esp" class="main-btn" style="margin:0; background:#6c757d" onclick="entrarNaSala('espectador')">Entrar como Espectador</button>
+            <div id="loader-status" style="display:none; font-size:13px; color:#0d6efd; margin-top:5px; font-weight:bold;">Verificando disponibilidade...</div>
         </div>
     </div>
 </div>
 
-<img src="titulo.png" style="width:100%; height:auto;">
+<img src="titulo.png" style="width:100%; max-width: 600px; display: block; margin: 0 auto;">
 <div id="status-bar" style="text-align:center; padding: 5px; font-size: 12px; color: #666; font-weight: bold;"></div>
 
 <div class="table-container">
-    <table id="tabela">
-        <thead>
-            <tr>
-                <th class="jogador">Jogador</th>
-                <th class="tipo-col">Tipo</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
-                <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
-                <th>TOTAL</th>
-            </tr>
-        </thead>
+    <table>
+        <thead><tr id="cabecalho-principal"></tr></thead>
         <tbody id="tabela-corpo"></tbody>
     </table>
 </div>
@@ -102,28 +100,26 @@
     <button id="btn-reset" class="main-btn" style="width:40%; background:#dc3545; display:none" onclick="resetarJogo()">Recomeçar</button>
 </div>
 
-<div id="theme-icon" onclick="document.body.classList.toggle('dark-theme')">🌓</div>
-<div id="info-icon" onclick="document.getElementById('info-overlay').style.display='flex'">!</div>
+<div id="exit-icon" class="float-icon" onclick="sairDaSala()">➔</div>
+<div id="theme-icon" class="float-icon" onclick="document.body.classList.toggle('dark-theme')">🌓</div>
+<div id="info-icon" class="float-icon" onclick="document.getElementById('info-overlay').style.display='flex'">!</div>
 
-<div id="ranking-overlay"><div id="ranking-output"></div></div>
 <div id="selection-overlay">
-    <div id="selection-modal">
+    <div id="info-output" style="text-align:center;">
         <h3>Selecione o Valor</h3>
-        <div id="selection-options" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
-        <button class="main-btn" style="background:#6c757d; width:100%" onclick="document.getElementById('selection-overlay').style.display='none'">Fechar</button>
+        <div id="selection-options" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:15px;"></div>
+        <button class="main-btn" style="background:#6c757d; width:100%" onclick="document.getElementById('selection-overlay').style.display='none'">Cancelar</button>
     </div>
 </div>
 
+<div id="ranking-overlay"><div id="ranking-output"></div></div>
+
 <div id="info-overlay">
     <div id="info-output">
-        <h2 style="color:#0d6efd">ESTIMATIVA - V4</h2>
-        <p><strong>Desenvolvedor:</strong> IURI VOLNEY</p>
-        <p style="text-align: left; font-size: 14px;">
-            1. O Organizador cria a sala e faz as marcações.<br>
-            2. Espectadores entram com o mesmo nome de sala para acompanhar.<br>
-            3. A sincronização é automática via Firebase.<br>
-            4. O Ranking calcula os pontos em tempo real.
-        </p>
+        <h2 style="text-align:center; color:#0d6efd">Estimativa</h2>
+        <p><strong>Desenvolvido por </strong>IURI VOLNEY<br><strong>Email</strong> iuri.volney@gmail.com</p>
+        <p><strong>Novidades:</strong><br>1. O Organizador cria a sala e faz as marcações.<br>2. Os Expectadores entram na sala com o mesmo nome para acompanhar.<br>3. Botão para sair da sala.</p>
+        
         <button class="main-btn" style="width:100%" onclick="document.getElementById('info-overlay').style.display='none'">Fechar</button>
     </div>
 </div>
@@ -136,8 +132,7 @@ const firebaseConfig = {
   projectId: "estimativa-482421",
   storageBucket: "estimativa-482421.firebasestorage.app",
   messagingSenderId: "121884408752",
-  appId: "1:121884408752:web:a6f6048c1b4db7e4c03475",
-  measurementId: "G-PZ0XLEFBWL"
+  appId: "1:121884408752:web:a6f6048c1b4db7e4c03475"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -145,48 +140,134 @@ const db = firebase.database();
 let currentRoom = "";
 let isOrganizer = false;
 
-function entrarNaSala(modo) {
+async function entrarNaSala(modo) {
     const roomId = document.getElementById('room-id').value.trim().toUpperCase();
+    const btnOrg = document.getElementById('btn-entrar-org');
+    const btnEsp = document.getElementById('btn-entrar-esp');
+    const loader = document.getElementById('loader-status');
+
     if (!roomId) return alert("Digite o nome da sala!");
+
+    btnOrg.disabled = true; btnEsp.disabled = true;
+    loader.style.display = 'block';
+    const originalText = btnOrg.innerText;
+    if(modo === 'organizador') btnOrg.innerText = "Processando...";
+
     currentRoom = roomId;
-    isOrganizer = (modo === 'organizador');
-    document.getElementById('room-overlay').style.display = 'none';
-    document.getElementById('status-bar').innerText = `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
-    if (isOrganizer) document.getElementById('btn-reset').style.display = 'block';
-    
-    renderizarTabelaVazia();
-    
-    db.ref('salas/' + currentRoom).on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) atualizarInterface(data);
-    });
+    const salaRef = db.ref('salas/' + currentRoom);
+
+    try {
+        if (modo === 'organizador') {
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+            const check = salaRef.child('organizadorAtivo').once('value');
+            const snapshot = await Promise.race([check, timeout]);
+
+            if (snapshot.exists() && snapshot.val() === true) {
+                alert("Já existe um Organizador nesta sala!");
+                resetButtons();
+                return;
+            }
+            isOrganizer = true;
+            await salaRef.child('organizadorAtivo').set(true);
+            salaRef.child('organizadorAtivo').onDisconnect().remove();
+        } else {
+            isOrganizer = false;
+        }
+
+        document.getElementById('room-overlay').style.display = 'none';
+        document.getElementById('status-bar').innerText = `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
+        if (isOrganizer) document.getElementById('btn-reset').style.display = 'block';
+
+        gerarCabecalho();
+        renderizarTabelaVazia();
+        
+        salaRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) atualizarInterface(data);
+        });
+
+    } catch (e) {
+        alert("Erro de conexão.");
+        resetButtons();
+    }
+
+    function resetButtons() {
+        btnOrg.disabled = false; btnEsp.disabled = false;
+        btnOrg.innerText = originalText;
+        loader.style.display = 'none';
+    }
+}
+
+function gerarCabecalho() {
+    let html = '<th class="jogador">Jogador</th><th class="tipo-col">Tipo</th>';
+    for(let i=1; i<=12; i++) html += `<th>${i}</th>`;
+    html += '<th>TOTAL</th>';
+    document.getElementById('cabecalho-principal').innerHTML = html;
 }
 
 function renderizarTabelaVazia() {
     const tbody = document.getElementById('tabela-corpo');
     let html = '';
     for (let i = 0; i < 6; i++) {
-        html += `<tr class="linha-estimativa"><td rowspan="2" class="jogador"><input type="text" placeholder="Jogador" oninput="salvarNoFirebase()" ${!isOrganizer ? 'disabled' : ''}></td><td class="tipo-col">Est.</td>${Array.from({length: 12}).map((_, c) => `<td><button class="botao-estimativa" onclick="abrirSeletor(this, ${c+1}, 'est')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}<td rowspan="2" class="total" style="font-weight:bold">0</td></tr><tr class="linha-pontos"><td class="tipo-col">Pts.</td>${Array.from({length: 12}).map((_, c) => `<td><button class="botao-pontos" onclick="abrirSeletor(this, ${c+1}, 'pts')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}</tr>`;
+        html += `
+        <tr class="linha-estimativa">
+            <td rowspan="2" class="jogador"><input type="text" placeholder="Jogador" oninput="salvarNoFirebase()" ${!isOrganizer ? 'disabled' : ''}></td>
+            <td class="tipo-col">Est.</td>
+            ${Array.from({length: 12}).map((_, c) => `<td><button class="botao-estimativa" data-col="${c+1}" onclick="abrirSeletor(this, ${c+1}, 'est')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}
+            <td rowspan="2" class="total" style="font-weight:bold">0</td>
+        </tr>
+        <tr class="linha-pontos">
+            <td class="tipo-col">Pts.</td>
+            ${Array.from({length: 12}).map((_, c) => `<td><button class="botao-pontos" data-col="${c+1}" onclick="abrirSeletor(this, ${c+1}, 'pts')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}
+        </tr>`;
     }
     tbody.innerHTML = html;
+}
+
+function abrirSeletor(btn, col, tipo) {
+    if (!isOrganizer) return;
+    const container = document.getElementById('selection-options');
+    container.innerHTML = '';
+    
+    let opcoes;
+    if (tipo === 'est') {
+        opcoes = Array.from({length: col + 1}, (_, i) => i);
+    } else {
+        const estBtn = btn.closest('.linha-pontos').previousElementSibling.querySelector(`button[data-col="${col}"]`);
+        const estVal = parseInt(estBtn.textContent);
+        if (isNaN(estVal)) return alert("Defina a Estimativa!");
+        opcoes = getOpcoesPontos(col, estVal);
+    }
+
+    opcoes.forEach(opt => {
+        const b = document.createElement('button'); b.className = 'main-btn'; b.style.width = '45px'; b.textContent = opt;
+        b.onclick = () => { 
+            btn.textContent = opt; 
+            if (tipo === 'est') btn.closest('.linha-estimativa').nextElementSibling.querySelector(`button[data-col="${col}"]`).textContent = "";
+            document.getElementById('selection-overlay').style.display='none'; 
+            salvarNoFirebase(); 
+        };
+        container.appendChild(b);
+    });
+    document.getElementById('selection-overlay').style.display = 'flex';
 }
 
 function salvarNoFirebase() {
     if (!isOrganizer) return;
     const data = { jogadors: [] };
     document.querySelectorAll('.linha-estimativa').forEach((row) => {
-        const pRow = row.nextElementSibling;
         data.jogadors.push({
             nome: row.querySelector('.jogador input').value,
             estimates: Array.from(row.querySelectorAll('.botao-estimativa')).map(b => b.textContent),
-            scores: Array.from(pRow.querySelectorAll('.botao-pontos')).map(b => b.textContent)
+            scores: Array.from(row.nextElementSibling.querySelectorAll('.botao-pontos')).map(b => b.textContent)
         });
     });
-    db.ref('salas/' + currentRoom).set(data);
+    db.ref('salas/' + currentRoom).update(data);
 }
 
 function atualizarInterface(data) {
     const rows = document.querySelectorAll('.linha-estimativa');
+    if (!data.jogadors) return;
     data.jogadors.forEach((pData, idx) => {
         if (!rows[idx]) return;
         const row = rows[idx]; const pRow = row.nextElementSibling;
@@ -209,60 +290,49 @@ function atualizarTotais() {
     });
 }
 
-function abrirSeletor(btn, col, tipo) {
-    if (!isOrganizer) return;
-    const container = document.getElementById('selection-options');
-    container.innerHTML = '';
-    let opcoes = (tipo === 'est') ? Array.from({length: col + 1}, (_, i) => i) : getOpcoesPontos(col, parseInt(btn.closest('.linha-pontos').previousElementSibling.querySelector(`td:nth-child(${col + 2}) button`).textContent));
-    if (tipo === 'pts' && isNaN(opcoes[0])) return alert("Marque a Estimativa primeiro!");
-    opcoes.forEach(opt => {
-        const b = document.createElement('button'); b.className = 'main-btn'; b.style.width = '50px'; b.textContent = opt;
-        b.onclick = () => { btn.textContent = opt; document.getElementById('selection-overlay').style.display='none'; salvarNoFirebase(); };
-        container.appendChild(b);
-    });
-    document.getElementById('selection-overlay').style.display = 'flex';
-}
-
 function getOpcoesPontos(n, est) {
-    if (isNaN(est)) return [NaN];
     let opts = (est === 0) ? [...Array(n).keys()].map(i => i + 1).concat(10) : [...Array(est).keys()].map(i => -(i + 1)).concat([...Array(n - est).keys()].map(i => i + 1)).concat(est + 10);
     return [...new Set(opts)].sort((a,b) => a-b);
 }
 
+function sairDaSala() {
+    if (confirm("Sair da sala?")) {
+        if (isOrganizer) db.ref('salas/' + currentRoom + '/organizadorAtivo').remove();
+        location.reload();
+    }
+}
+
 function resetarJogo() {
-    if (!isOrganizer) return;
-    const confirmacao = prompt("Para zerar os dados, digite: apagar");
-    if (confirmacao && confirmacao.toLowerCase() === "apagar") {
-        if (confirm("Deseja apagar TUDO (incluindo jogadores)?")) {
-            db.ref('salas/' + currentRoom).remove();
-        } else {
-            const data = { jogadors: [] };
-            document.querySelectorAll('.linha-estimativa').forEach(row => {
-                data.jogadors.push({
-                    nome: row.querySelector('.jogador input').value,
-                    estimates: Array.from({length: 12}).map(() => ""),
-                    scores: Array.from({length: 12}).map(() => "")
-                });
-            });
-            db.ref('salas/' + currentRoom).set(data);
-        }
+    const pass = prompt("Digite 'apagar' para zerar:");
+    if (pass && pass.toLowerCase().trim() === "apagar") {
+        db.ref('salas/' + currentRoom + '/jogadors').remove();
     }
 }
 
 function mostrarRanking() {
-    const jogadors = [];
+    const j = [];
     document.querySelectorAll('.linha-estimativa').forEach(row => {
-        const nome = row.querySelector('.jogador input').value.trim();
-        if(nome) jogadors.push({ nome, total: parseInt(row.querySelector('.total').textContent) || 0 });
+        const n = row.querySelector('.jogador input').value.trim();
+        if(n) j.push({ n, t: parseInt(row.querySelector('.total').textContent) || 0 });
     });
-    jogadors.sort((a, b) => b.total - a.total);
+    j.sort((a, b) => b.t - a.t);
+    
     let html = '<h2>🏆 Ranking Estimativa</h2><ul>';
-    jogadors.forEach((p, i) => html += `<li><span>${i+1}º ${p.nome}</span><strong>${p.total} pts</strong></li>`);
-    html += '</ul>';
-    html += `<button class="main-btn" style="width:100%; margin-top:15px; background:#dc3545" onclick="document.getElementById('ranking-overlay').style.display='none'">Fechar</button>`;
+    let pos = 1;
+    j.forEach((p, i) => {
+        if (i > 0 && p.t < j[i - 1].t) pos++;
+        html += `<li>
+            <span class="rank-number">${pos}º</span>
+            <span class="rank-jogador">${p.n}</span>
+            <span class="rank-score">${p.t} pts</span>
+        </li>`;
+    });
+    html += '</ul><button class="main-btn" style="width:100%; background:#dc3545" onclick="document.getElementById(\'ranking-overlay\').style.display=\'none\'">Fechar</button>';
+    
     document.getElementById('ranking-output').innerHTML = html;
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
 </script>
 </body>
 </html>
+
