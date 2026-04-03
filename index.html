@@ -59,7 +59,6 @@
 
     #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
     
-    /* ESTILO DO RANKING ORIGINAL */
     #ranking-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 350px; color: var(--text-main); text-align: center; }
     #ranking-output h2 { margin-top: 0; color: #0d6efd; }
     #ranking-output ul { list-style: none; padding: 0; margin: 15px 0; }
@@ -158,10 +157,7 @@ async function entrarNaSala(modo) {
 
     try {
         if (modo === 'organizador') {
-            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-            const check = salaRef.child('organizadorAtivo').once('value');
-            const snapshot = await Promise.race([check, timeout]);
-
+            const snapshot = await salaRef.child('organizadorAtivo').once('value');
             if (snapshot.exists() && snapshot.val() === true) {
                 alert("Já existe um Organizador nesta sala!");
                 resetButtons();
@@ -183,7 +179,7 @@ async function entrarNaSala(modo) {
         
         salaRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) atualizarInterface(data);
+            atualizarInterface(data);
         });
 
     } catch (e) {
@@ -267,14 +263,25 @@ function salvarNoFirebase() {
 
 function atualizarInterface(data) {
     const rows = document.querySelectorAll('.linha-estimativa');
-    if (!data.jogadors) return;
+    
+    if (!data || !data.jogadors) {
+        rows.forEach(row => {
+            const inputNome = row.querySelector('.jogador input');
+            if (document.activeElement !== inputNome) inputNome.value = "";
+            row.querySelectorAll('.botao-estimativa').forEach(btn => btn.textContent = "");
+            row.nextElementSibling.querySelectorAll('.botao-pontos').forEach(btn => btn.textContent = "");
+            row.querySelector('.total').textContent = "0";
+        });
+        return;
+    }
+
     data.jogadors.forEach((pData, idx) => {
         if (!rows[idx]) return;
         const row = rows[idx]; const pRow = row.nextElementSibling;
         const inputNome = row.querySelector('.jogador input');
         if (document.activeElement !== inputNome) inputNome.value = pData.nome || "";
-        row.querySelectorAll('.botao-estimativa').forEach((btn, i) => btn.textContent = pData.estimates[i] || "");
-        pRow.querySelectorAll('.botao-pontos').forEach((btn, i) => btn.textContent = pData.scores[i] || "");
+        row.querySelectorAll('.botao-estimativa').forEach((btn, i) => btn.textContent = (pData.estimates && pData.estimates[i]) || "");
+        pRow.querySelectorAll('.botao-pontos').forEach((btn, i) => btn.textContent = (pData.scores && pData.scores[i]) || "");
     });
     atualizarTotais();
 }
@@ -303,11 +310,21 @@ function sairDaSala() {
 }
 
 function resetarJogo() {
-    const pass = prompt("Digite 'apagar' para zerar:");
-    if (pass && pass.toLowerCase().trim() === "apagar") {
+    if (!isOrganizer) return;
+    const pass = prompt("Digite 'apagar' para zerar tudo:");
+    
+    // Se o usuário clicar em "Cancelar" ou fechar o prompt
+    if (pass === null) return;
+
+    // Verifica se a palavra digitada está correta
+    if (pass.toLowerCase().trim() === "apagar") {
         db.ref('salas/' + currentRoom + '/jogadors').remove();
+    } else {
+        // Mensagem para quando a palavra estiver errada
+        alert("Palavra incorreta! O jogo não foi zerado.");
     }
 }
+
 
 function mostrarRanking() {
     const j = [];
@@ -335,4 +352,3 @@ function mostrarRanking() {
 </script>
 </body>
 </html>
-
