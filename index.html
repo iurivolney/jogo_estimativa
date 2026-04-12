@@ -53,7 +53,7 @@
     .linha-pontos td { background-color: var(--bg-pts-row); }
 
     .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
-    .botao-estimativa, .botao-pontos { width: 31px; height: 25px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
+    .botao-estimativa, .botao-pontos { width: 32px; height: 25px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
     .botao-estimativa { background-color: #deeafc; }
     .botao-pontos { background-color: #faf1ed; }
 
@@ -93,7 +93,8 @@
     </div>
 </div>
 
-<img src="tituloModerno.png" style="width:100%; max-width: 600px; display: block; margin: 0 auto;">
+<img id="imagem-tema" src="tituloClaro.png" style="width:100%; max-width: 600px; display: block; margin: 0 auto;">
+
 <div id="status-bar" style="text-align:center; padding: 5px; font-size: 12px; color: #666; font-weight: bold;"></div>
 
 <div class="table-container">
@@ -186,7 +187,7 @@ async function entrarNaSala(modo) {
             };
 
             // Substitua pelos IDs do seu painel EmailJS
-            emailjs.send('service_bgtz75a', 'template_t9izu2u', templateParams)
+            emailjs.send('service_4s7klls', 'template_t9izu2u', templateParams)
                 .then(() => console.log('Alerta enviado com sucesso!'))
                 .catch((err) => console.error('Falha ao enviar e-mail:', err));
             // --------------------------------------
@@ -353,6 +354,8 @@ function resetarJogo() {
     }
 }
 
+
+
 function mostrarRanking() {
     const j = [];
     document.querySelectorAll('.linha-estimativa').forEach(row => {
@@ -376,6 +379,21 @@ function mostrarRanking() {
     document.getElementById('ranking-output').innerHTML = html;
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
+
+// lógica do ícone de tema por esta:
+const themeIcon = document.getElementById('theme-icon');
+const imgTema = document.getElementById('imagem-tema');
+
+themeIcon.onclick = () => {
+    document.body.classList.toggle('dark-theme');
+    
+    // Verifica se o tema escuro está ativo
+    if (document.body.classList.contains('dark-theme')) {
+        imgTema.src = "tituloEscuro.png"; // Caminho da imagem para o tema ESCURO
+    } else {
+        imgTema.src = "tituloClaro.png";  // Caminho da imagem para o tema CLARO
+    }
+};
 </script>
 </body>
 </html>
