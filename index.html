@@ -248,7 +248,11 @@ function renderizarTabelaVazia() {
 function abrirSeletor(btn, col, tipo) {
     if (!isOrganizer) return;
     const container = document.getElementById('selection-options');
+    const modalTitulo = document.querySelector('#selection-overlay h3'); // Seleciona o título do modal
     container.innerHTML = '';
+    
+    // Altera o texto baseado no tipo de botão clicado
+    modalTitulo.textContent = (tipo === 'est') ? "Selecione a estimativa" : "Selecione a pontuação";
     
     let opcoes;
     if (tipo === 'est') {
@@ -324,9 +328,28 @@ function sairDaSala() {
 }
 
 function resetarJogo() {
-    const pass = prompt("Digite 'apagar' para zerar:");
+    const pass = prompt("Digite 'apagar' para zerar as pontuações:");
     if (pass && pass.toLowerCase().trim() === "apagar") {
-        db.ref('salas/' + currentRoom + '/jogadors').remove();
+        const data = { jogadors: [] };
+        
+        // Percorre as linhas atuais para capturar os nomes e limpar os valores
+        document.querySelectorAll('.linha-estimativa').forEach(row => {
+            const nomeAtual = row.querySelector('.jogador input').value;
+            data.jogadors.push({
+                nome: nomeAtual,
+                estimates: Array.from({length: 12}).map(() => ""), // Limpa estimativas
+                scores: Array.from({length: 12}).map(() => "")    // Limpa pontuações
+            });
+        });
+
+        // Atualiza o Firebase mantendo a estrutura com os nomes
+        db.ref('salas/' + currentRoom).update(data).then(() => {
+            alert("Pontuações zeradas! Nomes mantidos.");
+        }).catch((error) => {
+            console.error("Erro ao resetar:", error);
+        });
+    } else if (pass !== null) {
+        alert("Palavra incorreta.");
     }
 }
 
