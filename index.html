@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Estimativa - Multiplayer V4</title>
 
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MCZG07R3DW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MCZG07R3DW');
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/..."></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -187,7 +198,7 @@ async function entrarNaSala(modo) {
             };
 
             // Substitua pelos IDs do seu painel EmailJS
-            emailjs.send('service_4s7klls', 'template_t9izu2u', templateParams)
+            emailjs.send('service_bgtz75a', 'template_t9izu2u', templateParams)
                 .then(() => console.log('Alerta enviado com sucesso!'))
                 .catch((err) => console.error('Falha ao enviar e-mail:', err));
             // --------------------------------------
