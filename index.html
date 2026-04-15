@@ -137,17 +137,17 @@
     }
 
     .icon {
-      font-size: 18px;
+      font-size: 25px;
     }
 
     .info-text strong {
       display: block;
-      font-size: 14px;
+      font-size: 18px;
       color: #111827;
     }
 
     .info-text span {
-      font-size: 13px;
+      font-size: 16px;
       color: #6B7280;
     }
 </style>
@@ -285,7 +285,7 @@ async function entrarNaSala(modo) {
             };
 
             // Substitua pelos IDs do seu painel EmailJS
-            emailjs.send('service_gh19t3g', 'template_t9izu2u', templateParams)
+            emailjs.send('service_bgtz75a', 'template_t9izu2u', templateParams)
                 .then(() => console.log('Alerta enviado com sucesso!'))
                 .catch((err) => console.error('Falha ao enviar e-mail:', err));
             // --------------------------------------
