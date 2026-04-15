@@ -135,11 +135,14 @@
             <button id="btn-entrar-org" class="main-btn" style="margin:0" onclick="entrarNaSala('organizador')">Entrar como Organizador</button>
             <button id="btn-entrar-esp" class="main-btn" style="margin:0; background:#6c757d" onclick="entrarNaSala('espectador')">Entrar como Espectador</button>
             <div id="loader-status" style="display:none; font-size:13px; color:#0d6efd; margin-top:5px; font-weight:bold;">Verificando disponibilidade...</div>
+			
+			 <p style="text-align: justify;"><br><br>O <b>Organizador</b> cria a sala e faz as marcações.<br><br><br>Os <b>Expectadores</b> entram na sala com o mesmo nome para acompanhar.</p>
+			
         </div>
     </div>
 </div>
 
-<img id="imagem-tema" src="tituloClaro2.png" style="width:100%; max-width: 600px; display: block; margin: 0 auto;">
+<img id="imagem-tema" src="tituloClaro.png" style="width:100%; max-width: 600px; display: block; margin: 0 auto;">
 
 <div id="status-bar" style="text-align:center; padding: 5px; font-size: 12px; color: #666; font-weight: bold;"></div>
 
@@ -439,9 +442,9 @@ themeIcon.onclick = () => {
     
     // Verifica se o tema escuro está ativo
     if (document.body.classList.contains('dark-theme')) {
-        imgTema.src = "tituloEscuro2.png"; // Caminho da imagem para o tema ESCURO
+        imgTema.src = "tituloEscuro.png"; // Caminho da imagem para o tema ESCURO
     } else {
-        imgTema.src = "tituloClaro2.png";  // Caminho da imagem para o tema CLARO
+        imgTema.src = "tituloClaro.png";  // Caminho da imagem para o tema CLARO
     }
 };
 
