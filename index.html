@@ -44,9 +44,9 @@
     
     #room-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: var(--bg-body); display: flex; justify-content: center; align-items: center; z-index: 20000;
+        background: linear-gradient(to right, #1e3c72, #2a5298); ; display: flex; justify-content: center; align-items: center; z-index: 20000;
     }
-    .room-card { background: var(--bg-table); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 2px solid var(--bg-header); }
+    .room-card { background: var(--bg-table); padding: 30px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 2px solid var(--bg-header); }
     .room-card input { width: 100%; padding: 12px; margin: 10px 0; font-size: 18px; text-transform: uppercase; border: 2px solid var(--bg-header); border-radius: 8px; box-sizing: border-box; background: var(--bg-table); color: var(--text-main); }
 
     .table-container { overflow: auto; max-height: 70vh; margin-bottom: 5px; border-radius: 8px; }
@@ -123,20 +123,69 @@
     70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
     100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
 }
+
+
+.info {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .icon {
+      font-size: 18px;
+    }
+
+    .info-text strong {
+      display: block;
+      font-size: 14px;
+      color: #111827;
+    }
+
+    .info-text span {
+      font-size: 13px;
+      color: #6B7280;
+    }
 </style>
 </head>
 <body>
 
 <div id="room-overlay">
     <div class="room-card">
-        <h2 style="color:#0d6efd; margin-bottom:5px;">ESTIMATIVA V4</h2>
+        <h2 style="color:#0d6efd; margin-bottom:5px;">ESTIMATIVA</h2>
         <input type="text" id="room-id" placeholder="NOME DA SALA" maxlength="15">
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
             <button id="btn-entrar-org" class="main-btn" style="margin:0" onclick="entrarNaSala('organizador')">Entrar como Organizador</button>
             <button id="btn-entrar-esp" class="main-btn" style="margin:0; background:#6c757d" onclick="entrarNaSala('espectador')">Entrar como Espectador</button>
             <div id="loader-status" style="display:none; font-size:13px; color:#0d6efd; margin-top:5px; font-weight:bold;">Verificando disponibilidade...</div>
 			
-			 <p style="text-align: justify;"><br><br>O <b>Organizador</b> cria a sala e faz as marcações.<br><br><br>Os <b>Expectadores</b> entram na sala com o mesmo nome para acompanhar.</p>
+			<div class="info">
+				<div class="info-item">
+					<div class="icon">👑</div>
+					<div class="info-text">
+					<strong>Organizador</strong>
+					<span>Cria a sala e faz as marcações</span>
+				</div>
+			</div>
+
+				<div class="info-item">
+					<div class="icon">👀</div>
+					<div class="info-text">
+					<strong>Espectador</strong>
+					<span>Apenas acompanha em tempo real</span>
+					</div>
+				</div>
+			</div>
+			
+			
+			
+			
+			
+			
 			
         </div>
     </div>
