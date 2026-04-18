@@ -78,6 +78,8 @@
         background: #0d6efd !important; 
     }
 	
+	
+	
 
     .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
     .botao-estimativa, .botao-pontos { width: 32px; height: 25px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
@@ -168,11 +170,22 @@
     }
 	/* Estilo para a linha de soma das estimativas */
 	.linha-soma-est td { 
-    background-color: #d4edda !important; /* Verde claro */
-    color: #155724; /* Verde escuro para o texto */
+    background-color: #d4edda !important; 
+    color: #155724; 
     font-weight: bold; 
     border-top: 2px solid #c3e6cb;
+    /* Adicione estas linhas abaixo: */
+    position: sticky;
+    bottom: 0;        /* Garante que fique fixo no rodapé verticalmente */
+    z-index: 450;     /* Maior que as células normais (101) e o cabeçalho (300) */
 	}
+	.linha-soma-est td:first-child {
+		position: sticky;
+		left: 0;
+		z-index: 460;     /* Um pouco maior que o z-index da linha para ficar sobre ela */
+		background-color: #d4edda !important;
+	}
+	
 	body.dark-theme .linha-soma-est td {
     background-color: #1b4332 !important; /* Verde escuro para tema dark */
     color: #d4edda;
@@ -367,10 +380,10 @@ function renderizarTabelaVazia() {
     }
     // NOVA LINHA DE SOMA (Verde)
     html += `
-   <tr class="linha-soma-est">
+	<tr class="linha-soma-est">
 		<td colspan="2" style="text-align:right; padding-right:10px;">Total estimado</td>
 		${Array.from({length: 12}).map((_, c) => `<td class="soma-col-est" data-col="${c+1}"></td>`).join('')}
-		<td>-</td>
+		<td class="total">-</td> 
 	</tr>`;
     
     tbody.innerHTML = html;
