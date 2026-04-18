@@ -22,7 +22,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
    (function(){
-      // Substitua pelo seu Public Key do menu 'Account'
+      // ublic Key do menu 'Account' do EmailJS
       emailjs.init("NsQuPNY-Ia0ZOHTov");
    })();
 </script>
@@ -90,51 +90,51 @@
     #info-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 450px; color: var(--text-main); }
 	
 	/* Efeito Radar/Pulsação */
-@keyframes radar-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
-}
+	@keyframes radar-pulse {
+		0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+		70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+	}
 
-/* Primeiro botão (Sair) - Começa imediato */
-.radar-1 {
-    animation: radar-pulse-red 1.5s infinite;
-}
+	/* Primeiro botão (Sair) - Começa imediato */
+	.radar-1 {
+		animation: radar-pulse-red 1.5s infinite;
+	}
 
-/* Segundo botão (Tema) - Espera 0.5 segundos */
-.radar-2 {
-    animation: radar-pulse 1.5s infinite;
-    animation-delay: 0.5s;
-}
+	/* Segundo botão (Tema) - Espera 0.5 segundos */
+	.radar-2 {
+		animation: radar-pulse 1.5s infinite;
+		animation-delay: 0.5s;
+	}
 
-/* Terceiro botão (Info) - Espera 1 segundo */
-.radar-3 {
-    animation: radar-pulse 1.5s infinite;
-    animation-delay: 1s;
-}
+	/* Terceiro botão (Info) - Espera 1 segundo */
+		.radar-3 {
+		animation: radar-pulse 1.5s infinite;
+		animation-delay: 1s;
+	}
 
-/* Ajuste específico para o botão de sair (cor vermelha no radar) */
-#exit-icon.radar-effect {
-    animation: radar-pulse-red 1.5s infinite;
-}
+	/* Ajuste específico para o botão de sair (cor vermelha no radar) */
+	#exit-icon.radar-effect {
+		animation: radar-pulse-red 1.5s infinite;
+	}
 
-@keyframes radar-pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-}
+	@keyframes radar-pulse-red {
+		0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+		70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+	}
 
 
-.info {
-      margin-top: 20px;
-      text-align: left;
-    }
+	.info {
+		  margin-top: 20px;
+		  text-align: left;
+		}
 
-    .info-item {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
+		.info-item {
+		  display: flex;
+		  gap: 10px;
+		  margin-bottom: 15px;
+		}
 
     .icon {
       font-size: 25px;
@@ -150,6 +150,18 @@
       font-size: 16px;
       color: #6B7280;
     }
+	/* Estilo para a linha de soma das estimativas */
+	.linha-soma-est td { 
+    background-color: #d4edda !important; /* Verde claro */
+    color: #155724; /* Verde escuro para o texto */
+    font-weight: bold; 
+    border-top: 2px solid #c3e6cb;
+	}
+	body.dark-theme .linha-soma-est td {
+    background-color: #1b4332 !important; /* Verde escuro para tema dark */
+    color: #d4edda;
+    border-top: 2px solid #2d6a4f;
+}
 </style>
 </head>
 <body>
@@ -180,13 +192,6 @@
 					</div>
 				</div>
 			</div>
-			
-			
-			
-			
-			
-			
-			
         </div>
     </div>
 </div>
@@ -284,7 +289,7 @@ async function entrarNaSala(modo) {
                 date_time: new Date().toLocaleString('pt-BR')
             };
 
-            // Substitua pelos IDs do seu painel EmailJS
+            // IDs do EmailJS ferente ao email a ser utilizado
             emailjs.send('service_bgtz75a', 'template_t9izu2u', templateParams)
                 .then(() => console.log('Alerta enviado com sucesso!'))
                 .catch((err) => console.error('Falha ao enviar e-mail:', err));
@@ -295,10 +300,8 @@ async function entrarNaSala(modo) {
         }
 
         document.getElementById('room-overlay').style.display = 'none';
-		// ... dentro da função entrarNaSala ...
-document.getElementById('room-overlay').style.display = 'none';
-dispararEfeitoRadar(); // <--- Adicione esta linha aqui
-// ... resto do código ...
+		document.getElementById('room-overlay').style.display = 'none';
+		dispararEfeitoRadar();
         document.getElementById('status-bar').innerText = `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
         if (isOrganizer) document.getElementById('btn-reset').style.display = 'block';
 
@@ -332,6 +335,7 @@ function gerarCabecalho() {
 function renderizarTabelaVazia() {
     const tbody = document.getElementById('tabela-corpo');
     let html = '';
+    // Linhas dos jogadores
     for (let i = 0; i < 6; i++) {
         html += `
         <tr class="linha-estimativa">
@@ -345,6 +349,14 @@ function renderizarTabelaVazia() {
             ${Array.from({length: 12}).map((_, c) => `<td><button class="botao-pontos" data-col="${c+1}" onclick="abrirSeletor(this, ${c+1}, 'pts')" ${!isOrganizer ? 'disabled' : ''}></button></td>`).join('')}
         </tr>`;
     }
+    // NOVA LINHA DE SOMA (Verde)
+    html += `
+   <tr class="linha-soma-est">
+		<td colspan="2" style="text-align:right; padding-right:10px;">Soma Est.</td>
+		${Array.from({length: 12}).map((_, c) => `<td class="soma-col-est" data-col="${c+1}"></td>`).join('')}
+		<td>-</td>
+	</tr>`;
+    
     tbody.innerHTML = html;
 }
 
@@ -408,6 +420,7 @@ function atualizarInterface(data) {
 }
 
 function atualizarTotais() {
+    // 1. Soma horizontal dos pontos por jogador
     document.querySelectorAll('.linha-estimativa').forEach(row => {
         let soma = 0;
         row.nextElementSibling.querySelectorAll('.botao-pontos').forEach(btn => {
@@ -416,6 +429,27 @@ function atualizarTotais() {
         });
         row.querySelector('.total').textContent = soma;
     });
+
+    // 2. Lógica de Soma Vertical: Só exibe se houver preenchimento
+    for (let col = 1; col <= 12; col++) {
+        let somaEstColuna = 0;
+        let temValor = false;
+
+        document.querySelectorAll(`.botao-estimativa[data-col="${col}"]`).forEach(btn => {
+            const val = parseInt(btn.textContent);
+            if (!isNaN(val)) {
+                somaEstColuna += val;
+                temValor = true; // Identifica que ao menos um organizador já marcou algo
+            }
+        });
+
+        const celulaSoma = document.querySelector(`.soma-col-est[data-col="${col}"]`);
+        if (celulaSoma) {
+            // Se não houver valor preenchido na coluna, deixa vazio. 
+            // Se houver (mesmo que a soma seja 0), exibe o número.
+            celulaSoma.textContent = temValor ? somaEstColuna : "";
+        }
+    }
 }
 
 function getOpcoesPontos(n, est) {
@@ -482,7 +516,6 @@ function mostrarRanking() {
     document.getElementById('ranking-overlay').style.display = 'flex';
 }
 
-// lógica do ícone de tema por esta:
 const themeIcon = document.getElementById('theme-icon');
 const imgTema = document.getElementById('imagem-tema');
 
