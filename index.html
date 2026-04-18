@@ -62,6 +62,22 @@
 
     .linha-estimativa td { background-color: var(--bg-est-row); }
     .linha-pontos td { background-color: var(--bg-pts-row); }
+	
+	
+	    /* COLUNA FIXA DIREITA (TOTAL) - Z-INDEX AUMENTADO */
+    th:last-child, td.total, .linha-soma-est td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 400; /* Maior que as colunas normais e esquerda */
+        background-color: var(--bg-table) !important;
+        border-left: 2px solid var(--border-color);
+    }
+
+    thead th:last-child { 
+        z-index: 500; /* Topo absoluto do cabeçalho */
+        background: #0d6efd !important; 
+    }
+	
 
     .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
     .botao-estimativa, .botao-pontos { width: 32px; height: 25px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
