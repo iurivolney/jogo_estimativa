@@ -44,42 +44,67 @@
     
     #room-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(to right, #1e3c72, #2a5298); ; display: flex; justify-content: center; align-items: center; z-index: 20000;
+        background: linear-gradient(to right, #1e3c72, #2a5298); display: flex; justify-content: center; align-items: center; z-index: 20000;
     }
     .room-card { background: var(--bg-table); padding: 30px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; width: 320px; border: 2px solid var(--bg-header); }
     .room-card input { width: 100%; padding: 12px; margin: 10px 0; font-size: 18px; text-transform: uppercase; border: 2px solid var(--bg-header); border-radius: 8px; box-sizing: border-box; background: var(--bg-table); color: var(--text-main); }
 
-    .table-container { overflow: auto; max-height: 70vh; margin-bottom: 5px; border-radius: 8px; }
+    .table-container { overflow: auto; max-height: 70vh; margin-bottom: 5px; border-radius: 8px; position: relative; }
     table { width: 100%; border-collapse: collapse; background: var(--bg-table); }
     th, td { border: 1px solid var(--border-color); padding: 6px; text-align: center; white-space: nowrap; }
     
+    /* CABEÇALHO FIXO NO TOPO */
     th { background: #0d6efd !important; color: white !important; position: sticky; top: 0; z-index: 300; }
+    
+    /* COLUNAS FIXAS À ESQUERDA (JOGADOR E TIPO) */
     .jogador { position: sticky; left: 0; z-index: 101; width: 110px; font-weight: bold; background-color: inherit; }
     .tipo-col { position: sticky; left: 110px; z-index: 101; width: 60px; font-weight: bold; background-color: inherit; }
 
-    thead th:nth-child(1) { position: sticky; left: 0; z-index: 302; background: #0d6efd !important; }
-    thead th:nth-child(2) { position: sticky; left: 110px; z-index: 301; background: #0d6efd !important; }
+    /* CORREÇÃO DO CABEÇALHO NAS COLUNAS FIXAS ESQUERDA */
+    thead th:nth-child(1) { position: sticky; left: 0; z-index: 310; background: #0d6efd !important; }
+    thead th:nth-child(2) { position: sticky; left: 110px; z-index: 310; background: #0d6efd !important; }
 
-    .linha-estimativa td { background-color: var(--bg-est-row); }
-    .linha-pontos td { background-color: var(--bg-pts-row); }
-	
-	
-	    /* COLUNA FIXA DIREITA (TOTAL) - Z-INDEX AUMENTADO */
+    /* COLUNA FIXA À DIREITA (TOTAL) - Z-INDEX PARA OS NÚMEROS PASSAREM POR TRÁS */
     th:last-child, td.total, .linha-soma-est td:last-child {
         position: sticky;
         right: 0;
-        z-index: 400; /* Maior que as colunas normais e esquerda */
+        z-index: 400; 
         background-color: var(--bg-table) !important;
         border-left: 2px solid var(--border-color);
     }
+    thead th:last-child { z-index: 500; background: #0d6efd !important; }
 
-    thead th:last-child { 
-        z-index: 500; /* Topo absoluto do cabeçalho */
-        background: #0d6efd !important; 
+    /* LINHA FIXA NO RODAPÉ (TOTAL ESTIMADO) - Z-INDEX PARA OS NÚMEROS PASSAREM POR TRÁS */
+    .linha-soma-est td { 
+        background-color: #d4edda !important; 
+        color: #155724; 
+        font-weight: bold; 
+        border-top: 2px solid #c3e6cb;
+        position: sticky;
+        bottom: 0;
+        z-index: 450;
     }
-	
-	
-	
+
+    /* FIXA O TEXTO "TOTAL ESTIMADO" À ESQUERDA NO RODAPÉ */
+    .linha-soma-est td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 460;
+        background-color: #d4edda !important;
+    }
+
+    /* AJUSTE PARA O ENCONTRO DO RODAPÉ COM A COLUNA TOTAL (CANTO INFERIOR DIREITO) */
+    .linha-soma-est td:last-child {
+        z-index: 550;
+    }
+
+    body.dark-theme .linha-soma-est td {
+        background-color: #1b4332 !important; color: #d4edda; border-top: 2px solid #2d6a4f;
+    }
+    body.dark-theme .linha-soma-est td:first-child { background-color: #1b4332 !important; }
+
+    .linha-estimativa td { background-color: var(--bg-est-row); }
+    .linha-pontos td { background-color: var(--bg-pts-row); }
 
     .jogador input[type='text'] { width: 98px; border: 1px solid #aaa; border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
     .botao-estimativa, .botao-pontos { width: 32px; height: 25px; font-weight: bold; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; color: #000; }
@@ -94,9 +119,8 @@
     #theme-icon { right: 65px; background: #333; font-size: 20px; }
     #info-icon { right: 15px; background: #0d6efd; font-size: 24px; }
 
-    #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; }
+    #selection-overlay, #ranking-overlay, #info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 20000; }
     
-    /* ESTILO DO RANKING ORIGINAL */
     #ranking-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 350px; color: var(--text-main); text-align: center; }
     #ranking-output h2 { margin-top: 0; color: #0d6efd; }
     #ranking-output ul { list-style: none; padding: 0; margin: 15px 0; }
@@ -107,34 +131,15 @@
 
     #info-output { padding: 20px; border: 2px solid #0d6efd; border-radius: 10px; background: var(--bg-modal); width: 90%; max-width: 450px; color: var(--text-main); }
 	
-	/* Efeito Radar/Pulsação */
 	@keyframes radar-pulse {
 		0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
 		70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
 		100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
 	}
 
-	/* Primeiro botão (Sair) - Começa imediato */
-	.radar-1 {
-		animation: radar-pulse-red 1.5s infinite;
-	}
-
-	/* Segundo botão (Tema) - Espera 0.5 segundos */
-	.radar-2 {
-		animation: radar-pulse 1.5s infinite;
-		animation-delay: 0.5s;
-	}
-
-	/* Terceiro botão (Info) - Espera 1 segundo */
-		.radar-3 {
-		animation: radar-pulse 1.5s infinite;
-		animation-delay: 1s;
-	}
-
-	/* Ajuste específico para o botão de sair (cor vermelha no radar) */
-	#exit-icon.radar-effect {
-		animation: radar-pulse-red 1.5s infinite;
-	}
+	.radar-1 { animation: radar-pulse-red 1.5s infinite; }
+	.radar-2 { animation: radar-pulse 1.5s infinite; animation-delay: 0.5s; }
+    .radar-3 { animation: radar-pulse 1.5s infinite; animation-delay: 1s; }
 
 	@keyframes radar-pulse-red {
 		0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
@@ -142,55 +147,11 @@
 		100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
 	}
 
-
-	.info {
-		  margin-top: 20px;
-		  text-align: left;
-		}
-
-		.info-item {
-		  display: flex;
-		  gap: 10px;
-		  margin-bottom: 15px;
-		}
-
-    .icon {
-      font-size: 25px;
-    }
-
-    .info-text strong {
-      display: block;
-      font-size: 18px;
-      color: #111827;
-    }
-
-    .info-text span {
-      font-size: 16px;
-      color: #6B7280;
-    }
-	/* Estilo para a linha de soma das estimativas */
-	.linha-soma-est td { 
-    background-color: #d4edda !important; 
-    color: #155724; 
-    font-weight: bold; 
-    border-top: 2px solid #c3e6cb;
-    /* Adicione estas linhas abaixo: */
-    position: sticky;
-    bottom: 0;        /* Garante que fique fixo no rodapé verticalmente */
-    z-index: 450;     /* Maior que as células normais (101) e o cabeçalho (300) */
-	}
-	.linha-soma-est td:first-child {
-		position: sticky;
-		left: 0;
-		z-index: 460;     /* Um pouco maior que o z-index da linha para ficar sobre ela */
-		background-color: #d4edda !important;
-	}
-	
-	body.dark-theme .linha-soma-est td {
-    background-color: #1b4332 !important; /* Verde escuro para tema dark */
-    color: #d4edda;
-    border-top: 2px solid #2d6a4f;
-}
+	.info { margin-top: 20px; text-align: left; }
+	.info-item { display: flex; gap: 10px; margin-bottom: 15px; }
+    .icon { font-size: 25px; }
+    .info-text strong { display: block; font-size: 18px; color: #111827; }
+    .info-text span { font-size: 16px; color: #6B7280; }
 </style>
 </head>
 <body>
