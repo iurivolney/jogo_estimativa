@@ -60,21 +60,20 @@
     .jogador { position: sticky; left: 0; z-index: 101; width: 110px; font-weight: bold; background-color: inherit; }
     .tipo-col { position: sticky; left: 110px; z-index: 101; width: 60px; font-weight: bold; background-color: inherit; }
 
-    /* CORREÇÃO DO CABEÇALHO NAS COLUNAS FIXAS ESQUERDA */
     thead th:nth-child(1) { position: sticky; left: 0; z-index: 310; background: #0d6efd !important; }
     thead th:nth-child(2) { position: sticky; left: 110px; z-index: 310; background: #0d6efd !important; }
 
-    /* COLUNA FIXA À DIREITA (TOTAL) - Z-INDEX PARA OS NÚMEROS PASSAREM POR TRÁS */
+    /* COLUNA FIXA À DIREITA (TOTAL) - CORES PERSONALIZADAS */
     th:last-child, td.total, .linha-soma-est td:last-child {
         position: sticky;
         right: 0;
         z-index: 400; 
-        background-color: var(--bg-table) !important;
+        background-color: #e0f7ff !important; /* Cor tema claro */
         border-left: 2px solid var(--border-color);
     }
     thead th:last-child { z-index: 500; background: #0d6efd !important; }
 
-    /* LINHA FIXA NO RODAPÉ (TOTAL ESTIMADO) - Z-INDEX PARA OS NÚMEROS PASSAREM POR TRÁS */
+    /* LINHA FIXA NO RODAPÉ (TOTAL ESTIMADO) */
     .linha-soma-est td { 
         background-color: #d4edda !important; 
         color: #155724; 
@@ -93,15 +92,21 @@
         background-color: #d4edda !important;
     }
 
-    /* AJUSTE PARA O ENCONTRO DO RODAPÉ COM A COLUNA TOTAL (CANTO INFERIOR DIREITO) */
+    /* ENCONTRO DO RODAPÉ COM A COLUNA TOTAL (CANTO INFERIOR DIREITO) */
     .linha-soma-est td:last-child {
         z-index: 550;
     }
 
+    /* AJUSTES PARA O TEMA ESCURO */
     body.dark-theme .linha-soma-est td {
         background-color: #1b4332 !important; color: #d4edda; border-top: 2px solid #2d6a4f;
     }
     body.dark-theme .linha-soma-est td:first-child { background-color: #1b4332 !important; }
+    
+    body.dark-theme td.total, 
+    body.dark-theme .linha-soma-est td:last-child {
+        background-color: #1a3a4a !important; /* Mesma cor da coluna jogador no dark */
+    }
 
     .linha-estimativa td { background-color: var(--bg-est-row); }
     .linha-pontos td { background-color: var(--bg-pts-row); }
