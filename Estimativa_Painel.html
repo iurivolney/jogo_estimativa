@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Telão Estimativa</title>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #f4f4f9;
+            --bg-card: #ffffff;
+            --text-main: #333333;
+            --accent: #0d6efd;
+            --border-color: #dddddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2vh 2vw;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Tela de Entrada */
+        #setup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        .setup-card {
+            background: white;
+            padding: 5vh;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 80%; max-width: 400px;
+        }
+
+        input {
+            width: 100%; padding: 15px; margin: 20px 0; font-size: 20px;
+            border-radius: 10px; border: 2px solid var(--accent);
+            text-align: center; text-transform: uppercase; box-sizing: border-box;
+        }
+
+        /* Painel do Ranking - Ajuste Automático */
+        #ranking-panel {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            margin: auto;
+        }
+
+        h1 {
+            /* Fonte ajusta entre 2.5rem e 5rem conforme a tela */
+            font-size: clamp(2.5rem, 8vh, 5rem); 
+            color: var(--accent); 
+            margin-bottom: 3vh;
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+        }
+
+        ul { list-style: none; padding: 0; margin: 0; width: 100%; }
+
+        li {
+            background: var(--bg-card);
+            margin: 1.5vh 0;
+            padding: 2vh 4vw;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Fonte do item ajusta conforme altura da tela */
+            font-size: clamp(1.5rem, 5vh, 3.5rem); 
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .rank-num { width: 15%; text-align: left; color: #666; }
+        .rank-name { flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rank-pts { color: var(--accent); min-width: 20%; text-align: right; }
+        
+        .award-icon { font-size: 1.2em; vertical-align: middle; margin-right: 1vw; }
+
+        #room-info {
+            position: fixed; bottom: 2vh; right: 2vw;
+            color: var(--bg-body); font-size: clamp(0.8rem, 2vh, 1.2rem); font-weight: bold;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            li { padding: 1.5vh 3vw; border-radius: 10px; }
+            h1 { margin-bottom: 2vh; }
+        }
+		/* Estilo para o ícone flutuante */
+		.float-icon { 
+			position: fixed; 
+			bottom: 20px; 
+			right: 20px; 
+			width: 50px; 
+			height: 50px; 
+			color: white; 
+			border-radius: 50%; 
+			text-align: center; 
+			line-height: 50px; 
+			cursor: pointer; 
+			z-index: 10000; 
+			box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+			font-weight: bold;
+			background: #c9e2f2; 
+			font-size: 24px;
+			transition: transform 0.2s;
+		}
+
+		.float-icon:hover {
+			transform: scale(1.1);
+		}
+
+		/* Animação de radar (opcional) */
+		@keyframes radar-pulse-red {
+			0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+			70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+		}
+
+		
+		
+    </style>
+</head>
+<body>
+
+    <div id="setup-overlay">
+        <div class="setup-card">
+            <h2 style="color: #1e3c72">RANKING ESTIMATIVA</h2>
+            <input type="text" id="room-input" placeholder="NOME DA SALA" maxlength="15">
+            <button onclick="conectarPainel()" style="background: #0d6efd; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px;">ABRIR TELÃO</button>
+			<button onclick="window.location.href='Estimativa_plataforma.html'" style="background: #6c757d; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px;">VOLTAR</button>
+        </div>
+    </div>
+
+    <div id="ranking-panel">
+        <h1 id="title-sala">RANKING</h1>
+        <ul id="ranking-list"></ul>
+    </div>
+
+    <div id="room-info"> <span id="room-display">-</span></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtB6aqEBIqtqmKMNdylVIosgjGQwOxGVc",
+            authDomain: "estimativa-482421.firebaseapp.com",
+            databaseURL: "https://estimativa-482421-default-rtdb.firebaseio.com",
+            projectId: "estimativa-482421",
+            storageBucket: "estimativa-482421.firebasestorage.app",
+            messagingSenderId: "121884408752",
+            appId: "1:121884408752:web:a6f6048c1b4db7e4c03475"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+		function conectarPainel() {
+			// 1. Captura o nome da sala e valida se foi preenchido
+			const roomId = document.getElementById('room-input').value.trim().toUpperCase();
+			if (!roomId) return alert("Digite o nome da sala!");
+
+			// 2. Alterna a visibilidade das telas: esconde o setup e mostra o ranking
+			document.getElementById('setup-overlay').style.display = 'none';
+			document.getElementById('ranking-panel').style.display = 'block';
+			
+			// 3. EXIBE O ÍCONE DE VOLTAR (back-icon)
+			// Esta linha garante que o botão flutuante apareça apenas no painel de ranking
+			const backIcon = document.getElementById('back-icon');
+			if (backIcon) {
+				backIcon.style.display = 'block';
+			}
+
+			// 4. Atualiza as informações visuais da sala
+			document.getElementById('room-display').innerText = roomId;
+			document.getElementById('title-sala').innerText = "RANKING ESTIMATIVA";
+
+			// 5. Inicia a escuta em tempo real do Firebase para atualizar o ranking
+			db.ref('salas/' + roomId).on('value', (snapshot) => {
+				const data = snapshot.val();
+				if (data && data.jogadors) {
+					processarRanking(data.jogadors);
+				}
+			});
+		}
+
+		function processarRanking(jogadoresData) {
+			let jogoFinalizado = true;
+
+			let ranking = jogadoresData
+				.filter(j => j.nome && j.nome.trim() !== "")
+				.map(j => {
+					let total = 0;
+					// Verifica se a última rodada (índice 11) foi preenchida
+					if (!j.scores || j.scores[11] === undefined || j.scores[11] === "") {
+						jogoFinalizado = false;
+					}
+
+					if (j.scores) {
+						j.scores.forEach(s => {
+							const val = parseInt(s);
+							if (!isNaN(val)) total += val;
+						});
+					}
+					return { nome: j.nome, pontos: total };
+				});
+
+			// Ordena por pontos (maior para menor)
+			ranking.sort((a, b) => b.pontos - a.pontos);
+
+			const listElement = document.getElementById('ranking-list');
+			let html = "";
+			let posExibida = 0; // Inicia em 0 para ser incrementada corretamente
+			let ultimoScore = null;
+
+			ranking.forEach((jogador, i) => {
+				// Se o score atual for diferente do anterior, a posição numérica avança +1
+				// Se for igual, mantém a mesma posição (empate)
+				if (jogador.pontos !== ultimoScore) {
+					posExibida++;
+				}
+				
+				ultimoScore = jogador.pontos;
+
+				let award = "";
+				if (jogoFinalizado) {
+					if (posExibida === 1) award = '<span class="award-icon">🏆</span>';
+					else if (posExibida === 2) award = '<span class="award-icon">🥈</span>';
+					else if (posExibida === 3) award = '<span class="award-icon">🥉</span>';
+				}
+
+				html += `
+					<li>
+						<span class="rank-num">${posExibida}º</span>
+						<span class="rank-name">${award}${jogador.nome}</span>
+						<span class="rank-pts">${jogador.pontos} <small style="font-size: 0.5em">pts</small></span>
+					</li>
+				`;
+			});
+
+			listElement.innerHTML = html;
+		}
+        document.getElementById('room-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') conectarPainel(); });
+		
+		window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const salaUrl = urlParams.get('sala');
+
+    if (salaUrl) {
+        // Preenche o campo de input silenciosamente
+        document.getElementById('room-input').value = salaUrl;
+        // Chama a função de conexão automaticamente
+        conectarPainel();
+    }
+};
+    </script>
+	
+	<div id="back-icon" class="float-icon radar-exit" onclick="window.location.href='Estimativa_plataforma.html'" title="Voltar para a plataforma">
+    ➔
+	</div>
+</body>
+</html>
