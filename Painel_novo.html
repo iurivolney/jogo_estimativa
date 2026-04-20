@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Telão Estimativa</title>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <style>
+        :root {
+            --primary-red: #e60000;
+            --bg-light: #f4f4f4;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --input-bg: #eeeeee;
+            --border-color: #dddddd;
+        }
+
+        /* Tema Escuro (Ativado por classe no body) */
+        body.dark-mode {
+            --bg-light: #0f0f0f;
+            --text-color: #ffffff;
+            --card-bg: #1a1a1a;
+            --input-bg: #2d2d2d;
+            --border-color: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #particles-js {
+            position: absolute; width: 100%; height: 100%; z-index: 1; top: 0; left: 0;
+        }
+
+        /* Overlay de Entrada */
+        #setup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; background: rgba(0,0,0,0.8);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 101;
+            border-top: 5px solid var(--primary-red);
+        }
+
+        .login-card h2 { margin-bottom: 25px; color: var(--primary-red); }
+
+        input {
+            width: 100%; padding: 12px; margin-bottom: 20px;
+            border: none; border-radius: 8px; background: var(--input-bg);
+            color: var(--text-color); font-size: 16px; outline: none;
+            text-transform: uppercase; text-align: center;
+        }
+
+        .main-btn {
+            background: var(--primary-red); color: white; border: none;
+            padding: 15px; width: 100%; border-radius: 8px;
+            cursor: pointer; font-weight: bold; font-size: 18px;
+            transition: 0.3s; margin-bottom: 10px;
+        }
+
+        .main-btn:hover { background: #b30000; transform: translateY(-2px); }
+
+        /* Painel de Ranking Responsivo */
+        #ranking-panel {
+            display: none; 
+            width: 95%; 
+            max-width: 1100px;
+            background: var(--card-bg); 
+            padding: 4vh 4vw;
+            border-radius: 20px; 
+            z-index: 10;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            max-height: 90vh; 
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        h1#title-sala {
+            font-size: clamp(2rem, 6vh, 4rem);
+            color: var(--primary-red);
+            margin-bottom: 3vh;
+            text-transform: uppercase;
+        }
+
+        #ranking-list { list-style: none; padding: 0; width: 100%; }
+        
+        #ranking-list li {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 2vh 3vw; 
+            margin-bottom: 1.5vh;
+            background: var(--input-bg); 
+            border-radius: 12px;
+            font-size: clamp(1.2rem, 4vh, 2.5rem);
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+
+        .rank-num { width: 15%; text-align: left; color: var(--primary-red); opacity: 0.8; }
+        .rank-name { flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rank-pts { min-width: 20%; text-align: right; color: var(--primary-red); }
+        .award-icon { font-size: 1.1em; margin-right: 10px; }
+
+        /* Botões Flutuantes */
+        .theme-toggle {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--card-bg); border: none; padding: 12px;
+            border-radius: 50%; cursor: pointer; z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: var(--text-color);
+        }
+
+        #back-icon {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 55px; height: 55px; background: var(--primary-red);
+            color: white; border-radius: 50%; display: none;
+            align-items: center; justify-content: center;
+            cursor: pointer; z-index: 1000; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(230, 0, 0, 0.4);
+            transition: transform 0.2s;
+        }
+        #back-icon:hover { transform: scale(1.1); }
+
+        #room-display-footer {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 0.8rem; opacity: 0.5; z-index: 5;
+        }
+
+        /* Scrollbar Custom */
+        #ranking-panel::-webkit-scrollbar { width: 8px; }
+        #ranking-panel::-webkit-scrollbar-thumb { background: var(--primary-red); border-radius: 10px; }
+    </style>
+</head>
+<body class="light-mode"> <div id="particles-js"></div>
+
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i id="theme-icon" class="fas fa-moon"></i>
+    </button>
+
+    <div id="setup-overlay">
+        <div class="login-card">
+            <h2><i class="fas fa-trophy"></i> RANKING</h2>
+            <input type="text" id="room-input" placeholder="NOME DA SALA" maxlength="15">
+            <button class="main-btn" onclick="conectarPainel()">ABRIR TELÃO</button>
+            <button class="main-btn" style="background:#666" onclick="window.location.href='index.html'">VOLTAR</button>
+        </div>
+    </div>
+
+    <div id="ranking-panel">
+        <h1 id="title-sala">RANKING ESTIMATIVA</h1>
+        <ul id="ranking-list"></ul>
+    </div>
+
+    <div id="room-display-footer">SALA: <span id="room-id-text">-</span></div>
+
+    <div id="back-icon" onclick="window.location.href='Estimativa_plataforma.html'">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtB6aqEBIqtqmKMNdylVIosgjGQwOxGVc",
+            authDomain: "estimativa-482421.firebaseapp.com",
+            databaseURL: "https://estimativa-482421-default-rtdb.firebaseio.com",
+            projectId: "estimativa-482421",
+            storageBucket: "estimativa-482421.firebasestorage.app",
+            messagingSenderId: "121884408752",
+            appId: "1:121884408752:web:a6f6048c1b4db7e4c03475"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function conectarPainel() {
+            const roomId = document.getElementById('room-input').value.trim().toUpperCase();
+            if (!roomId) return alert("Por favor, digite o nome da sala.");
+
+            document.getElementById('setup-overlay').style.display = 'none';
+            document.getElementById('ranking-panel').style.display = 'block';
+            document.getElementById('back-icon').style.display = 'flex';
+            document.getElementById('room-id-text').innerText = roomId;
+
+            // Escuta em tempo real
+            db.ref('salas/' + roomId).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.jogadors) {
+                    processarRanking(data.jogadors);
+                }
+            });
+        }
+
+        function processarRanking(jogadoresData) {
+			// 1. Converte o objeto do Firebase em Array e calcula os pontos
+			let ranking = Object.values(jogadoresData)
+				.filter(j => j && j.nome)
+				.map(j => {
+					let total = 0;
+					if (j.scores) {
+						j.scores.forEach(s => {
+							const val = parseInt(s);
+							if (!isNaN(val)) total += val;
+						});
+					}
+					return { nome: j.nome, pontos: total };
+				});
+
+			// 2. Ordena por pontos (maior para menor)
+			ranking.sort((a, b) => b.pontos - a.pontos);
+
+			const listElement = document.getElementById('ranking-list');
+			let html = "";
+			
+			let posicaoAtual = 0; 
+			let ultimoScore = null;
+
+			ranking.forEach((jogador) => {
+				// LÓGICA DE CLASSIFICAÇÃO SEQUENCIAL:
+				// Se o score for diferente do anterior, aumentamos a posição em 1.
+				// Se for igual (empate), mantemos a mesma posição.
+				if (jogador.pontos !== ultimoScore) {
+					posicaoAtual++;
+				}
+				
+				ultimoScore = jogador.pontos;
+
+				// Gerar o HTML da linha
+				html += `
+					<li>
+						<span class="rank-num">${posicaoAtual}º</span>
+						<span class="rank-name">${jogador.nome}</span>
+						<span class="rank-pts">${jogador.pontos} <small style="font-size: 0.5em">pts</small></span>
+					</li>
+				`;
+			});
+
+			listElement.innerHTML = html;
+		}
+
+        // Enter no input
+        document.getElementById('room-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') conectarPainel();
+        });
+
+        // Partículas (Vermelhas conforme solicitado)
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 60 },
+                "color": { "value": "#e60000" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.4 },
+                "size": { "value": 3 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#e60000", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 1.5 }
+            },
+            "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
+        });
+
+        // Suporte para URL (ex: painel.html?sala=SALA01)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const salaUrl = urlParams.get('sala');
+            if (salaUrl) {
+                document.getElementById('room-input').value = salaUrl.toUpperCase();
+                conectarPainel();
+            }
+        };
+    </script>
+</body>
+</html>
