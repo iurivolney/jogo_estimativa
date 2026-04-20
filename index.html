@@ -157,6 +157,9 @@
     .icon { font-size: 25px; }
     .info-text strong { display: block; font-size: 18px; color: #111827; }
     .info-text span { font-size: 16px; color: #6B7280; }
+	/* Estilo para obotão Painel */
+	.btn-success {background-color: #28a745 !important;}
+	.btn-success:hover {background-color: #218838 !important;}
 </style>
 </head>
 <body>
@@ -168,22 +171,36 @@
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
             <button id="btn-entrar-org" class="main-btn" style="margin:0" onclick="entrarNaSala('organizador')">Entrar como Organizador</button>
             <button id="btn-entrar-esp" class="main-btn" style="margin:0; background:#6c757d" onclick="entrarNaSala('espectador')">Entrar como Espectador</button>
+			<button class="main-btn btn-success" style="margin:0" 
+			onclick="const sala = document.getElementById('room-id').value.trim().toUpperCase(); 
+					 if(!sala) return alert('Digite o nome da sala!'); 
+					 window.location.href='Estimativa_Painel.html?sala=' + sala;">
+			Painel
+			</button>
             <div id="loader-status" style="display:none; font-size:13px; color:#0d6efd; margin-top:5px; font-weight:bold;">Verificando disponibilidade...</div>
 			
 			<div class="info">
 				<div class="info-item">
 					<div class="icon">👑</div>
 					<div class="info-text">
-					<strong>Organizador</strong>
-					<span>Cria a sala e faz as marcações</span>
+						<strong>Organizador</strong>
+						<span>Cria a sala e faz as marcações</span>
+					</div>
 				</div>
-			</div>
 
 				<div class="info-item">
 					<div class="icon">👀</div>
 					<div class="info-text">
-					<strong>Espectador</strong>
-					<span>Acompanha em tempo real</span>
+						<strong>Espectador</strong>
+						<span>Acompanha em tempo real</span>
+					</div>
+				</div>
+
+				<div class="info-item">
+					<div class="icon">📊</div>
+					<div class="info-text">
+						<strong>Painel</strong>
+						<span>Exibe apenas o ranking</span>
 					</div>
 				</div>
 			</div>
