@@ -177,7 +177,7 @@
 
     <div id="room-display-footer">SALA: <span id="room-id-text">-</span></div>
 
-    <div id="back-icon" onclick="window.location.href='index.html'">
+    <div id="back-icon" onclick="window.location.href='Estimativa_plataforma.html'">
         <i class="fas fa-arrow-left"></i>
     </div>
 
@@ -221,11 +221,20 @@
         }
 
         function processarRanking(jogadoresData) {
-			// 1. Converte o objeto do Firebase em Array e calcula os pontos
+			// 1. Converte e calcula pontos
+			let jogoFinalizado = true; // Presumimos que sim, e validamos abaixo
+			
 			let ranking = Object.values(jogadoresData)
 				.filter(j => j && j.nome)
 				.map(j => {
 					let total = 0;
+					
+					// VERIFICAÇÃO DA 12ª RODADA (Índice 11)
+					// Se algum jogador não tiver a 12ª rodada preenchida, o jogo não finalizou
+					if (!j.scores || j.scores[11] === undefined || j.scores[11] === "" || j.scores[11] === null) {
+						jogoFinalizado = false;
+					}
+
 					if (j.scores) {
 						j.scores.forEach(s => {
 							const val = parseInt(s);
@@ -235,31 +244,34 @@
 					return { nome: j.nome, pontos: total };
 				});
 
-			// 2. Ordena por pontos (maior para menor)
+			// 2. Ordena por pontos
 			ranking.sort((a, b) => b.pontos - a.pontos);
 
 			const listElement = document.getElementById('ranking-list');
 			let html = "";
-			
-			let posicaoAtual = 0; 
+			let posExibida = 0;
 			let ultimoScore = null;
 
 			ranking.forEach((jogador) => {
-				// LÓGICA DE CLASSIFICAÇÃO SEQUENCIAL:
-				// Se o score for diferente do anterior, aumentamos a posição em 1.
-				// Se for igual (empate), mantemos a mesma posição.
+				// Lógica de empate sequencial (1º, 2º, 3º...)
 				if (jogador.pontos !== ultimoScore) {
-					posicaoAtual++;
+					posExibida++;
 				}
-				
 				ultimoScore = jogador.pontos;
 
-				// Gerar o HTML da linha
+				// LÓGICA DOS TROFÉUS
+				let medalha = "";
+				if (jogoFinalizado) {
+					if (posExibida === 1) medalha = '<span style="margin-right:10px;">🏆</span>';
+					else if (posExibida === 2) medalha = '<span style="margin-right:10px;">🥈</span>';
+					else if (posExibida === 3) medalha = '<span style="margin-right:10px;">🥉</span>';
+				}
+
 				html += `
 					<li>
-						<span class="rank-num">${posicaoAtual}º</span>
-						<span class="rank-name">${jogador.nome}</span>
-						<span class="rank-pts">${jogador.pontos} <small style="font-size: 0.5em">pts</small></span>
+						<span class="rank-num">${posExibida}º</span>
+						<span class="rank-name">${medalha}${jogador.nome}</span>
+						<span class="rank-pts">${jogador.pontos} <small style="font-size: 0.6em">pts</small></span>
 					</li>
 				`;
 			});
