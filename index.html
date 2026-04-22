@@ -167,7 +167,7 @@
 <div id="room-overlay">
     <div class="room-card">
         <h2 style="color:#0d6efd; margin-bottom:5px;">ESTIMATIVA</h2>
-        <input type="text" id="room-id" placeholder="NOME DA SALA" maxlength="15">
+        <input type="text" id="room-id" placeholder="NOME DA SALA" maxlength="55">
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
             <button id="btn-entrar-org" class="main-btn" style="margin:0" onclick="entrarNaSala('organizador')">Entrar como Organizador</button>
             <button id="btn-entrar-esp" class="main-btn" style="margin:0; background:#6c757d" onclick="entrarNaSala('espectador')">Entrar como Espectador</button>
@@ -265,28 +265,32 @@ let currentRoom = "";
 let isOrganizer = false;
 
 async function entrarNaSala(modo) {
-    const roomId = document.getElementById('room-id').value.trim().toUpperCase();
+    let roomId = document.getElementById('room-id').value.trim().toUpperCase();
     const btnOrg = document.getElementById('btn-entrar-org');
     const btnEsp = document.getElementById('btn-entrar-esp');
     const loader = document.getElementById('loader-status');
 
     if (!roomId) return alert("Digite o nome da sala!");
 
+    // VERIFICAÇÃO DE SEGURANÇA PARA HISTÓRICO
+    let isHistoryMode = roomId.startsWith("H-");
+    
+    if (isHistoryMode && modo === 'organizador') {
+        alert("Acesso negado: Salas de histórico são apenas para visualização (Espectador ou Painel).");
+        return; // Impede a continuação da função
+    }
+
     btnOrg.disabled = true; btnEsp.disabled = true;
     loader.style.display = 'block';
-    const originalText = btnOrg.innerText;
-    if(modo === 'organizador') btnOrg.innerText = "Processando...";
-
+    
     currentRoom = roomId;
-    const salaRef = db.ref('salas/' + currentRoom);
+    const dbPath = isHistoryMode ? 'historico/' : 'salas/';
+    const salaRef = db.ref(dbPath + currentRoom);
 
     try {
-        if (modo === 'organizador') {
-            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-            const check = salaRef.child('organizadorAtivo').once('value');
-            const snapshot = await Promise.race([check, timeout]);
-
-            if (snapshot.exists() && snapshot.val() === true) {
+        if (modo === 'organizador' && !isHistoryMode) {
+            const check = await salaRef.child('organizadorAtivo').once('value');
+            if (check.exists() && check.val() === true) {
                 alert("Já existe um Organizador nesta sala!");
                 resetButtons();
                 return;
@@ -295,34 +299,37 @@ async function entrarNaSala(modo) {
             await salaRef.child('organizadorAtivo').set(true);
             salaRef.child('organizadorAtivo').onDisconnect().remove();
 
-            // --- ENVIO DO E-MAIL DE NOTIFICAÇÃO ---
-            const templateParams = {
+            // Notificação EmailJS
+            emailjs.send('service_gh19t3g', 'template_t9izu2u', {
                 room_id: currentRoom,
                 date_time: new Date().toLocaleString('pt-BR')
-            };
-
-            // IDs do EmailJS ferente ao email a ser utilizado
-            emailjs.send('service_gh19t3g', 'template_t9izu2u', templateParams)
-                .then(() => console.log('Alerta enviado com sucesso!'))
-                .catch((err) => console.error('Falha ao enviar e-mail:', err));
-            // --------------------------------------
-
+            });
         } else {
             isOrganizer = false;
         }
 
+        // Interface
         document.getElementById('room-overlay').style.display = 'none';
-		document.getElementById('room-overlay').style.display = 'none';
-		dispararEfeitoRadar();
-        document.getElementById('status-bar').innerText = `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
+        dispararEfeitoRadar();
+        
+        const statusTxt = isHistoryMode ? `HISTÓRICO: ${currentRoom}` : `SALA: ${currentRoom} | ${modo.toUpperCase()}`;
+        document.getElementById('status-bar').innerText = statusTxt;
+        if (isHistoryMode) document.getElementById('status-bar').style.color = "#dc3545"; // Cor diferenciada para histórico
+
         if (isOrganizer) document.getElementById('btn-reset').style.display = 'block';
 
         gerarCabecalho();
         renderizarTabelaVazia();
         
+        // Escuta os dados (seja da sala ativa ou do histórico)
         salaRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) atualizarInterface(data);
+            if (data) {
+                atualizarInterface(data);
+            } else if (isHistoryMode) {
+                alert("Cópia de histórico não encontrada! Verifique o nome exato (Ex: SALA_DATA_HORA)");
+                location.reload();
+            }
         });
 
     } catch (e) {
@@ -332,7 +339,6 @@ async function entrarNaSala(modo) {
 
     function resetButtons() {
         btnOrg.disabled = false; btnEsp.disabled = false;
-        btnOrg.innerText = originalText;
         loader.style.display = 'none';
     }
 }
@@ -476,27 +482,48 @@ function sairDaSala() {
     }
 }
 
-function resetarJogo() {
-    const pass = prompt("Digite 'apagar' para zerar as pontuações:");
+async function resetarJogo() {
+    const pass = prompt("Digite 'apagar' para zerar as pontuações e salvar no histórico:");
     if (pass && pass.toLowerCase().trim() === "apagar") {
-        const data = { jogadors: [] };
-        
-        // Percorre as linhas atuais para capturar os nomes e limpar os valores
-        document.querySelectorAll('.linha-estimativa').forEach(row => {
-            const nomeAtual = row.querySelector('.jogador input').value;
-            data.jogadors.push({
-                nome: nomeAtual,
-                estimates: Array.from({length: 12}).map(() => ""), // Limpa estimativas
-                scores: Array.from({length: 12}).map(() => "")    // Limpa pontuações
-            });
-        });
+        try {
+            // 1. Capturar os dados atuais da sala
+            const snapshot = await db.ref('salas/' + currentRoom).once('value');
+            const dadosAtuais = snapshot.val();
 
-        // Atualiza o Firebase mantendo a estrutura com os nomes
-        db.ref('salas/' + currentRoom).update(data).then(() => {
-            alert("Pontuações zeradas! Nomes mantidos.");
-        }).catch((error) => {
-            console.error("Erro ao resetar:", error);
-        });
+            if (dadosAtuais) {
+                const agora = new Date();
+                const timestamp = agora.getFullYear() +
+                    String(agora.getMonth() + 1).padStart(2, '0') +
+                    String(agora.getDate()).padStart(2, '0') + "_" +
+                    String(agora.getHours()).padStart(2, '0') +
+                    String(agora.getMinutes()).padStart(2, '0') +
+                    String(agora.getSeconds()).padStart(2, '0');
+
+                // AJUSTE: Trocamos o "." por "-" para evitar erro de sintaxe no Firebase
+                const nomeCopia = `H-${currentRoom}_${timestamp}`;
+
+                // 2. Salvar no histórico
+                await db.ref('historico/' + nomeCopia).set(dadosAtuais);
+            }
+
+            // 3. Limpar a sala atual
+            const dataReset = { jogadors: [] };
+            document.querySelectorAll('.linha-estimativa').forEach(row => {
+                const nomeAtual = row.querySelector('.jogador input').value;
+                dataReset.jogadors.push({
+                    nome: nomeAtual,
+                    estimates: Array.from({length: 12}).map(() => ""),
+                    scores: Array.from({length: 12}).map(() => "")
+                });
+            });
+
+            await db.ref('salas/' + currentRoom).update(dataReset);
+            alert("Partida salva no histórico!");
+
+        } catch (error) {
+            console.error("Erro detalhado:", error);
+            alert("Erro ao salvar histórico. Verifique se o nome da sala contém caracteres especiais.");
+        }
     } else if (pass !== null) {
         alert("Palavra incorreta.");
     }
