@@ -203,23 +203,37 @@
             icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        function conectarPainel() {
-            const roomId = document.getElementById('room-input').value.trim().toUpperCase();
-            if (!roomId) return alert("Por favor, digite o nome da sala.");
+		function conectarPainel() {
+			let roomId = document.getElementById('room-input').value.trim().toUpperCase();
+			if (!roomId) return alert("Por favor, digite o nome da sala.");
 
-            document.getElementById('setup-overlay').style.display = 'none';
-            document.getElementById('ranking-panel').style.display = 'block';
-            document.getElementById('back-icon').style.display = 'flex';
-            document.getElementById('room-id-text').innerText = roomId;
+			// Lógica para detectar Histórico
+			let isHistoryMode = roomId.startsWith("H-");
 
-            // Escuta em tempo real
-            db.ref('salas/' + roomId).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data && data.jogadors) {
-                    processarRanking(data.jogadors);
-                }
-            });
-        }
+			document.getElementById('setup-overlay').style.display = 'none';
+			document.getElementById('ranking-panel').style.display = 'block';
+			document.getElementById('back-icon').style.display = 'flex';
+			
+			document.getElementById('room-id-text').innerText = roomId;
+			
+			if (isHistoryMode) {
+				document.getElementById('title-sala').innerText = "HISTÓRICO ESTIMATIVA";
+				document.getElementById('title-sala').style.color = "#888";
+			}
+
+			// AJUSTE: O roomId agora é usado por inteiro, sem remover o "H-"
+			const dbPath = isHistoryMode ? 'historico/' : 'salas/';
+
+			db.ref(dbPath + roomId).on('value', (snapshot) => {
+				const data = snapshot.val();
+				if (data && data.jogadors) {
+					processarRanking(data.jogadors);
+				} else if (isHistoryMode) {
+					alert("Histórico não encontrado.");
+					location.reload();
+				}
+			});
+		}
 
         function processarRanking(jogadoresData) {
 			// 1. Converte e calcula pontos
