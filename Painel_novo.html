@@ -353,35 +353,47 @@
     // 4. Ordenar Ranking por Pontos (do maior para o menor)
     ranking.sort((a, b) => b.pontos - a.pontos);
 
-// --- CONTROLO DA COMEMORAÇÃO (CONFETES E SOM EM LOOP) ---
+// --- CONTROLO DA COMEMORAÇÃO (SOM 2X E CONFETES 15S) ---
     if (jogoFinalizado) {
         if (!window.jaComemorou) {
-            // Inicia os confetes gigantes
+            // 1. Inicia os confetes gigantes
             lancarConfetes();
             
-            // Criar e configurar o áudio
-            window.audioVitoria = new Audio('fogos.mp3'); 
-            window.audioVitoria.loop = true; // Define para repetir continuamente
-            window.audioVitoria.volume = 1.0; // Volume máximo
-            
-            // Tenta reproduzir o som
-            window.audioVitoria.play().catch(e => {
-                console.log("O som foi bloqueado pelo navegador. Clique no telão para ativar o áudio.");
-            });
-            
-            window.jaComemorou = true;
+            // 2. Configura o Áudio para tocar apenas 2 vezes
+            window.audioVitoria = new Audio('vitoria.mp3');
+            window.audioVitoria.volume = 1.0;
+            let vezesTocadas = 0;
+
+            window.audioVitoria.addEventListener('ended', function() {
+                vezesTocadas++;
+                if (vezesTocadas < 2) {
+                    this.currentTime = 0;
+                    this.play();
+                }
+            }, false);
+
+            window.audioVitoria.play().catch(e => console.log("Áudio bloqueado. Clique na tela."));
+
+            // 3. Define o intervalo para os confetes continuarem caindo
             window.intervaloConfete = setInterval(lancarConfetes, 3000);
+
+            // 4. PARA TUDO após 15 segundos (15000ms)
+            window.timeoutFinalizacao = setTimeout(() => {
+                clearInterval(window.intervaloConfete); // Para de gerar novos confetes
+                if (window.audioVitoria) {
+                    window.audioVitoria.pause(); // Opcional: para o som se ainda estiver na 2ª vez
+                }
+                console.log("Comemoração finalizada automaticamente.");
+            }, 10000);
+
+            window.jaComemorou = true;
         }
     } else {
-        // Se o jogo for reiniciado, para tudo
+        // Se o jogo for reiniciado antes dos 15s, limpa todos os timers e para o som
         window.jaComemorou = false;
+        if (window.intervaloConfete) clearInterval(window.intervaloConfete);
+        if (window.timeoutFinalizacao) clearTimeout(window.timeoutFinalizacao);
         
-        // Para os confetes
-        if (window.intervaloConfete) {
-            clearInterval(window.intervaloConfete);
-        }
-        
-        // Para o áudio e reseta o tempo para o início
         if (window.audioVitoria) {
             window.audioVitoria.pause();
             window.audioVitoria.currentTime = 0;
