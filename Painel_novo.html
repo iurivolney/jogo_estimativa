@@ -10,7 +10,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
     :root {
         --primary-red: #e60000;
@@ -353,6 +353,44 @@
     // 4. Ordenar Ranking por Pontos (do maior para o menor)
     ranking.sort((a, b) => b.pontos - a.pontos);
 
+// --- CONTROLO DA COMEMORAÇÃO (CONFETES E SOM EM LOOP) ---
+    if (jogoFinalizado) {
+        if (!window.jaComemorou) {
+            // Inicia os confetes gigantes
+            lancarConfetes();
+            
+            // Criar e configurar o áudio
+            window.audioVitoria = new Audio('fogos.mp3'); 
+            window.audioVitoria.loop = true; // Define para repetir continuamente
+            window.audioVitoria.volume = 1.0; // Volume máximo
+            
+            // Tenta reproduzir o som
+            window.audioVitoria.play().catch(e => {
+                console.log("O som foi bloqueado pelo navegador. Clique no telão para ativar o áudio.");
+            });
+            
+            window.jaComemorou = true;
+            window.intervaloConfete = setInterval(lancarConfetes, 3000);
+        }
+    } else {
+        // Se o jogo for reiniciado, para tudo
+        window.jaComemorou = false;
+        
+        // Para os confetes
+        if (window.intervaloConfete) {
+            clearInterval(window.intervaloConfete);
+        }
+        
+        // Para o áudio e reseta o tempo para o início
+        if (window.audioVitoria) {
+            window.audioVitoria.pause();
+            window.audioVitoria.currentTime = 0;
+        }
+    }
+
+
+
+
     // 5. Renderizar a Lista com a Bolinha de Estimativa
     const listElement = document.getElementById('ranking-list');
     let html = "";
@@ -408,6 +446,47 @@
                 conectarPainel();
             }
         };
+		
+function lancarConfetes() {
+    var duration = 3 * 1000;
+    var animationEnd = Date.now() + duration;
+    
+    // scalar: 4 torna os confetes gigantes, ideais para telões
+    // zIndex: 99999 garante que fiquem à frente de tudo
+    var defaults = { 
+        startVelocity: 35, 
+        spread: 360, 
+        ticks: 60, 
+        zIndex: 99999, 
+        scalar: 4 
+    };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    var interval = setInterval(function() {
+      var timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      var particleCount = 40 * (timeLeft / duration);
+      
+      // Disparo da esquerda
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+      }));
+      
+      // Disparo da direita
+      confetti(Object.assign({}, defaults, { 
+        particleCount, 
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+      }));
+    }, 250);
+}
     </script>
 </body>
 </html>
